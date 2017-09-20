@@ -18,7 +18,7 @@ func validate(point *common.Point) error {
 		return fmt.Errorf(LENGTH_ERR, 1024, nameLen)
 	}
 
-	for k,v := range point.Tags {
+	for k, v := range point.Tags {
 		totalLen := len(k) + len(v)
 		if totalLen >= 255 {
 			return fmt.Errorf(LENGTH_ERR, 254, totalLen)

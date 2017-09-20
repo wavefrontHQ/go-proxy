@@ -1,14 +1,14 @@
 package parser
 
 import (
-	"testing"
-	"github.com/wavefronthq/go-proxy/common"
 	"fmt"
+	"github.com/wavefronthq/go-proxy/common"
+	"testing"
 )
 
 var graphiteParser = NewGraphiteParser()
 
-var validPoints = [...]string {
+var validPoints = [...]string{
 	// floating point values
 	"foo.metric 1.5 source=foo-linux",
 	"foo.metric 0.0 source=foo-linux",
@@ -32,7 +32,7 @@ var validPoints = [...]string {
 	"mac.cpu.usage.steal 0.000000 1505844752 cpu=\"cpu2\" os=\"Mac\" source=\"Vikrams-MacBook-Pro.local\"",
 }
 
-var invalidPoints = [...]string {
+var invalidPoints = [...]string{
 	"",
 	"foo.metric",
 	"foo.metric 1.5",
@@ -61,7 +61,7 @@ func TestValidPoints(t *testing.T) {
 }
 
 func validateSource(point *common.Point) error {
-	source, sok := point.Tags["source"];
+	source, sok := point.Tags["source"]
 	host, hok := point.Tags["host"]
 
 	if !sok && !hok {
@@ -92,6 +92,6 @@ func TestInvalidPoints(t *testing.T) {
 	}
 }
 
-func parsePoint(pt string) (*common.Point, error ) {
+func parsePoint(pt string) (*common.Point, error) {
 	return graphiteParser.Parse([]byte(pt))
 }

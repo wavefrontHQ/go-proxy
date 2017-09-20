@@ -2,15 +2,15 @@ package main
 
 import (
 	"flag"
+	"github.com/wavefronthq/go-proxy/agent"
+	"github.com/wavefronthq/go-proxy/api"
+	"github.com/wavefronthq/go-proxy/points"
+	"github.com/wavefronthq/go-proxy/points/decoder"
 	"log"
 	"os"
-	"strings"
-	"strconv"
 	"os/signal"
-	"github.com/wavefronthq/go-proxy/agent"
-	"github.com/wavefronthq/go-proxy/points"
-	"github.com/wavefronthq/go-proxy/api"
-	"github.com/wavefronthq/go-proxy/points/decoder"
+	"strconv"
+	"strings"
 )
 
 var version = "0.1"
@@ -116,8 +116,8 @@ func startListeners(service api.WavefrontAPI) {
 	}
 }
 
-func initAgent(agentID string ,service api.WavefrontAPI) {
-	agent := &agent.DefaultAgent{AgentID:agentID, ApiService: service}
+func initAgent(agentID string, service api.WavefrontAPI) {
+	agent := &agent.DefaultAgent{AgentID: agentID, ApiService: service}
 	agent.InitAgent()
 }
 

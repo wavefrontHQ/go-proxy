@@ -1,9 +1,9 @@
 package decoder
 
 import (
-	"testing"
 	"github.com/wavefronthq/go-proxy/common"
 	"strings"
+	"testing"
 )
 
 const VALID_NAME = "validName"
@@ -42,5 +42,3 @@ func getPoint(name, source string) *common.Point {
 	point.Source = source
 	return point
 }
-
-

@@ -1,9 +1,9 @@
 package config
 
 type AgentConfig struct {
-	Name string
+	Name             string
 	AllowAnyHostKeys bool
-	Targets []string
-	WorkUnits []string
-	PointsPerBatch int
+	Targets          []string
+	WorkUnits        []string
+	PointsPerBatch   int
 }

@@ -1,10 +1,10 @@
 package decoder
 
 import (
-	"strings"
-	"log"
 	"github.com/wavefronthq/go-proxy/common"
 	"github.com/wavefronthq/go-proxy/points/parser"
+	"log"
+	"strings"
 )
 
 type GraphiteDecoder struct {

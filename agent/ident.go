@@ -1,16 +1,15 @@
 package agent
 
 import (
-	"os"
 	"bufio"
-	"log"
 	satori "github.com/satori/go.uuid"
+	"log"
+	"os"
 )
 
 func CreateOrGetAgentId(idFile string) string {
-	agentId := ""
 	if _, err := os.Stat(idFile); os.IsNotExist(err) {
-		agentId = getUUID()
+		agentId := getUUID()
 		log.Println("Created agentId", agentId)
 		writeAgentId(agentId, idFile)
 		return agentId

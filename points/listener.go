@@ -1,12 +1,12 @@
 package points
 
 import (
-	"fmt"
 	"bufio"
-	"net"
-	"log"
+	"fmt"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/points/decoder"
+	"log"
+	"net"
 )
 
 // Interface that handles listening for points
@@ -17,7 +17,7 @@ type PointListener interface {
 }
 
 type DefaultPointListener struct {
-	Name 	  string
+	Name      string
 	Port      int
 	ptHandler PointHandler
 }

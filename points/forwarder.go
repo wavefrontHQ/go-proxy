@@ -1,11 +1,11 @@
 package points
 
 import (
-	"sync"
-	"log"
-	"time"
-	"strings"
 	"github.com/wavefronthq/go-proxy/api"
+	"log"
+	"strings"
+	"sync"
+	"time"
 )
 
 type PointForwarder interface {
@@ -99,7 +99,7 @@ func (forwarder *DefaultPointForwarder) postPoints(points []string) {
 		return
 	}
 	log.Println(forwarder.name, "PostData Response Status:", resp.StatusCode)
-	if (resp.StatusCode == api.NOT_ACCEPTABLE_STATUS_CODE) {
+	if resp.StatusCode == api.NOT_ACCEPTABLE_STATUS_CODE {
 		forwarder.bufferPoints(points)
 	}
 }

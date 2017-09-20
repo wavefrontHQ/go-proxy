@@ -2,11 +2,11 @@ package points
 
 import (
 	"fmt"
-	"time"
-	"math/rand"
-	"log"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/common"
+	"log"
+	"math/rand"
+	"time"
 )
 
 const MIN_FORWARDERS = 2
@@ -40,7 +40,7 @@ func (handler *DefaultPointHandler) initialize(numForwarders, flushInterval, max
 	}
 
 	handler.pointForwarders = make([]PointForwarder, numForwarders)
-	for i := 0 ; i < numForwarders; i++ {
+	for i := 0; i < numForwarders; i++ {
 		forwarderName := fmt.Sprintf("%s-%s-%d", handler.name, "Forwarder", i)
 		ticker := time.NewTicker(time.Millisecond * time.Duration(flushInterval))
 		pointForwarder := &DefaultPointForwarder{name: forwarderName, api: service, dataFormat: dataFormat,
@@ -76,8 +76,8 @@ func pointToString(point *common.Point) string {
 	// look into inbuilt Quote function
 	//<metricName> <metricValue> [<timestamp>] source=<source> [pointTags]
 	pointLine := fmt.Sprintf("%s %s %d source=%s", point.Name, point.Value, point.Timestamp, point.Source)
-	for k,v := range point.Tags {
-		pointLine = fmt.Sprintf(pointLine + " %s=%s", k, v)
+	for k, v := range point.Tags {
+		pointLine = fmt.Sprintf(pointLine+" %s=%s", k, v)
 	}
 	log.Println("Handler: pointLine", pointLine)
 	return pointLine

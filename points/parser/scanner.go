@@ -30,7 +30,7 @@ func (s *PointScanner) unread() {
 }
 
 // Scan returns the next token and literal value.
-func (s *PointScanner) Scan() (tok Token, lit string) {
+func (s *PointScanner) Scan() (Token, string) {
 
 	// Read the next rune
 	ch := s.read()

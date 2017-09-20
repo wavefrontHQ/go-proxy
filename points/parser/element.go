@@ -1,12 +1,12 @@
 package parser
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
+	"github.com/wavefronthq/go-proxy/common"
+	"log"
 	"strconv"
 	"time"
-	"log"
-	"github.com/wavefronthq/go-proxy/common"
 )
 
 var EOF_ERROR = fmt.Errorf("EOF")
@@ -15,12 +15,12 @@ type ElementParser interface {
 	parse(p *PointParser, pt *common.Point) error
 }
 
-type NameParser struct {}
-type ValueParser struct {}
+type NameParser struct{}
+type ValueParser struct{}
 type TimestampParser struct{}
 type WhiteSpaceParser struct{}
 type TagParser struct{}
-type LoopedParser struct{
+type LoopedParser struct {
 	wrappedParser ElementParser
 	wsPaser       *WhiteSpaceParser
 }
@@ -94,13 +94,13 @@ func setTimestamp(pt *common.Point, ts int64, numDigits int) error {
 
 	if numDigits == 19 {
 		// nanoseconds
-		ts = ts/1000000000
+		ts = ts / 1000000000
 	} else if numDigits == 16 {
 		// microseconds
-		ts = ts/1000000
+		ts = ts / 1000000
 	} else if numDigits == 13 {
 		// milliseconds
-		ts = ts/1000
+		ts = ts / 1000
 	}
 
 	if ts == 0 {
@@ -179,14 +179,14 @@ func parseQuotedLiteral(p *PointParser) (string, error) {
 	return buf.String(), nil
 }
 
-func parseLiteral(p* PointParser) (string, error) {
+func parseLiteral(p *PointParser) (string, error) {
 	var buf bytes.Buffer
 	tok, lit := p.scan()
 	if tok == EOF {
 		return "", fmt.Errorf("found %q, expected literal", lit)
 	}
 
-	if (tok == QUOTES) {
+	if tok == QUOTES {
 		return parseQuotedLiteral(p)
 	}
 
@@ -200,5 +200,5 @@ func parseLiteral(p* PointParser) (string, error) {
 }
 
 func getCurrentTime() int64 {
-	return time.Now().UnixNano()/1000000000
+	return time.Now().UnixNano() / 1000000000
 }

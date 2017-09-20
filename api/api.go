@@ -1,15 +1,15 @@
 package api
 
 import (
-	"net/http"
-	"fmt"
 	"bytes"
-	"errors"
-	"time"
 	"encoding/json"
-	"log"
-	"strconv"
+	"errors"
+	"fmt"
 	"github.com/wavefronthq/go-proxy/config"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 const GET_CONFIG_SUFFIX = "/daemon/%s/config"
@@ -18,7 +18,7 @@ const HOSTNAME = "hostname"
 const TOKEN = "token"
 const VERSION = "version"
 const CURRENT_MILLIS = "currentMillis"
-const BYTES_LEFT ="bytesLeftForBuffer"
+const BYTES_LEFT = "bytesLeftForBuffer"
 const BYTES_PER_MIN = "bytesPerMinuteForBuffer"
 const CURR_QUEUE_SIZE = "currentQueueSize"
 
@@ -38,10 +38,10 @@ type WavefrontAPI interface {
 
 type WavefrontAPIService struct {
 	ServerURL string
-	AgentID string
-	Hostname string
-	Token string
-	Version string
+	AgentID   string
+	Hostname  string
+	Token     string
+	Version   string
 }
 
 func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPerMinute, currentQueueSize int64) (*config.AgentConfig, error) {

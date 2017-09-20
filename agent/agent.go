@@ -2,8 +2,8 @@ package agent
 
 import (
 	"github.com/wavefronthq/go-proxy/api"
-	"time"
 	"log"
+	"time"
 )
 
 type WavefrontAgent interface {
@@ -21,7 +21,7 @@ func (agent *DefaultAgent) InitAgent() {
 	go agent.checkin(checkinTicker)
 }
 
-func (agent *DefaultAgent) checkin(ticker * time.Ticker) {
+func (agent *DefaultAgent) checkin(ticker *time.Ticker) {
 	for range ticker.C {
 		log.Println("Fetching configuration")
 		agent.doFetchConfig()
@@ -42,5 +42,5 @@ func (agent *DefaultAgent) doFetchConfig() {
 }
 
 func getCurrentTime() int64 {
-	return time.Now().UnixNano()/1000000000
+	return time.Now().UnixNano() / 1000000000
 }

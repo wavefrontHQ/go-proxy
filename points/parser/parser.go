@@ -2,19 +2,19 @@ package parser
 
 import (
 	"bytes"
-	"log"
 	"github.com/wavefronthq/go-proxy/common"
+	"log"
 )
 
 const MAX_BUFFER_SIZE = 2
 
 // Parser represents a parser.
 type PointParser struct {
-	s        *PointScanner
-	buf      struct {
+	s   *PointScanner
+	buf struct {
 		tok []Token  // last read n tokens
 		lit []string // last read n literals
-		n   int    // unscanned buffer size (max=2)
+		n   int      // unscanned buffer size (max=2)
 	}
 	Elements []ElementParser
 }
@@ -73,7 +73,7 @@ func (p *PointParser) unscan() {
 }
 
 func (p *PointParser) unscanTokens(n int) {
-	if (n > MAX_BUFFER_SIZE) {
+	if n > MAX_BUFFER_SIZE {
 		// just log for now
 		log.Printf("cannot unscan more than %d tokens", MAX_BUFFER_SIZE)
 	}

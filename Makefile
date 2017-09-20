@@ -37,6 +37,5 @@ test-all: lint
 
 clean:
 	-rm -f wavefront-proxy
-	-rm -f wavefront-proxy.exe
 
 .PHONY: deps proxy wavefront-proxy install test lint test-all clean
