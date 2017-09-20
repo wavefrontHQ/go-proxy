@@ -1,0 +1,7 @@
+package api
+
+const FORMAT_GRAPHITE_V2 = "graphite_v2"
+
+const GRAPHITE_BLOCK_WORK_UNIT = "12b37289-90b2-4b98-963f-75a27110b8da"
+
+const NOT_ACCEPTABLE_STATUS_CODE = 406
