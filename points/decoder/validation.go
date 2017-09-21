@@ -5,6 +5,8 @@ import (
 	"github.com/wavefronthq/go-proxy/common"
 )
 
+const SOURCE = "source"
+const HOST = "host"
 const LENGTH_ERR = "Expected length less than %d, found %d"
 
 func validate(point *common.Point) error {
@@ -26,4 +28,21 @@ func validate(point *common.Point) error {
 	}
 	//TODO: validate source, metric name, tag key/value characters
 	return nil
+}
+
+func handleSource(point *common.Point) error {
+	source, ok := point.Tags[SOURCE]
+	if ok {
+		delete(point.Tags, SOURCE)
+		point.Source = source
+		return nil
+	} else {
+		host, ok := point.Tags[HOST]
+		if ok {
+			delete(point.Tags, SOURCE)
+			point.Source = host
+			return nil
+		}
+	}
+	return fmt.Errorf("Missing source tag")
 }

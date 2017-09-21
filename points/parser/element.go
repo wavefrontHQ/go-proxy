@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/wavefronthq/go-proxy/common"
-	"log"
 	"strconv"
 	"time"
 )
@@ -32,7 +31,6 @@ func (ep *NameParser) parse(p *PointParser, pt *common.Point) error {
 	if err != nil {
 		return err
 	}
-	log.Println("metricName", name)
 	pt.Name = name
 	return nil
 }
@@ -60,7 +58,6 @@ func (ep *ValueParser) parse(p *PointParser, pt *common.Point) error {
 		return fmt.Errorf("invalid metric value %s", buf.String())
 	}
 	pt.Value = buf.String()
-	log.Println("metricValue", pt.Value)
 	return nil
 }
 
@@ -130,7 +127,6 @@ func (ep *TagParser) parse(p *PointParser, pt *common.Point) error {
 		if k == "" {
 			return nil
 		}
-		log.Println("Returning error in parse tag", k)
 		return err
 	}
 

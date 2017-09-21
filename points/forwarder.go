@@ -30,7 +30,7 @@ func (forwarder *DefaultPointForwarder) flushPoints() {
 	for range forwarder.pushTicker.C {
 		forwarder.postPoints(forwarder.getPointsBatch())
 	}
-	log.Println("Exiting flushPoints")
+	log.Printf("%s: exiting flushPoints", forwarder.name)
 }
 
 func (forwarder *DefaultPointForwarder) stop() {
@@ -51,6 +51,7 @@ func (forwarder *DefaultPointForwarder) getPointsBatch() []string {
 	batchPoints := forwarder.points[:batchSize]
 	forwarder.points = forwarder.points[batchSize:currLen]
 	forwarder.mtx.Unlock()
+	log.Printf("%s: current points: %d", forwarder.name, currLen)
 	return batchPoints
 }
 
@@ -58,7 +59,6 @@ func (forwarder *DefaultPointForwarder) bufferPoints(points []string) {
 	forwarder.mtx.Lock()
 	currentSize := len(forwarder.points)
 	pointsSize := len(points)
-	log.Println(forwarder.name, "bufferPoints: bufferSize:", currentSize, "pointsSize:", pointsSize)
 
 	// do not add more points than the buffer is configured for
 	trimSize := currentSize + pointsSize - forwarder.maxBufferSize
@@ -74,7 +74,6 @@ func (forwarder *DefaultPointForwarder) bufferPoints(points []string) {
 	if len(points) > 0 {
 		forwarder.points = append(points, forwarder.points...)
 	}
-	log.Println(forwarder.name, "bufferSize:", len(forwarder.points))
 	forwarder.mtx.Unlock()
 }
 
@@ -90,11 +89,10 @@ func (forwarder *DefaultPointForwarder) postPoints(points []string) {
 		return
 	}
 
-	log.Println(forwarder.name, "points to send:", len(points), "points in buffer:", len(forwarder.points))
 	pointLines := strings.Join(points, "\n")
 	resp, err := forwarder.api.PostData(forwarder.workUnitId, forwarder.dataFormat, pointLines)
 	if err != nil {
-		log.Println("Error", err)
+		log.Println("Error posting data", err)
 		forwarder.bufferPoints(points)
 		return
 	}

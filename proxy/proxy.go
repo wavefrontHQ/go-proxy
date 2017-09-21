@@ -98,8 +98,7 @@ func checkFlags() {
 }
 
 func startListener(listener points.PointListener, service api.WavefrontAPI) {
-	builder := decoder.GraphiteBuilder{}
-	listener.StartListener(builder, *fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
+	listener.StartListener(*fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
 		api.FORMAT_GRAPHITE_V2, api.GRAPHITE_BLOCK_WORK_UNIT, service)
 }
 
@@ -110,7 +109,7 @@ func startListeners(service api.WavefrontAPI) {
 		if err != nil {
 			log.Fatal("Invalid port " + portStr)
 		}
-		listener := &points.DefaultPointListener{Port: port, Name: "Graphite"}
+		listener := &points.DefaultPointListener{Port: port, Name: "Graphite", Builder: decoder.GraphiteBuilder{}}
 		listeners = append(listeners, listener)
 		startListener(listener, service)
 	}
