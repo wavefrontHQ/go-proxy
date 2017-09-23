@@ -11,25 +11,25 @@ import (
 
 // Interface that handles listening for points
 type PointListener interface {
-	StartListener(numForwarders, flushInterval, bufferSize, maxFlushSize int, format, workUnitId string, service api.WavefrontAPI)
-	StopListener()
+	Start(numForwarders, flushInterval, bufferSize, maxFlushSize int, format, workUnitId string, service api.WavefrontAPI)
+	Stop()
 }
 
 type DefaultPointListener struct {
-	Port      int
-	Builder   decoder.DecoderBuilder
-	ptHandler PointHandler
+	Port    int
+	Builder decoder.DecoderBuilder
+	handler PointHandler
 }
 
-func (ptListener *DefaultPointListener) StartListener(numForwarders, flushInterval, bufferSize, maxFlushSize int,
+func (l *DefaultPointListener) Start(numForwarders, flushInterval, bufferSize, maxFlushSize int,
 	format, workUnitId string, service api.WavefrontAPI) {
 
-	log.Printf("Starting listener on port: %d\n", ptListener.Port)
+	log.Printf("Starting listener on port: %d\n", l.Port)
 
-	ptListener.ptHandler = &DefaultPointHandler{name: fmt.Sprintf("%d", ptListener.Port)}
-	ptListener.ptHandler.init(numForwarders, flushInterval, bufferSize, maxFlushSize, format, workUnitId, service)
+	l.handler = &DefaultPointHandler{name: fmt.Sprintf("%d", l.Port)}
+	l.handler.init(numForwarders, flushInterval, bufferSize, maxFlushSize, format, workUnitId, service)
 
-	connStr := fmt.Sprintf(":%d", ptListener.Port)
+	connStr := fmt.Sprintf(":%d", l.Port)
 	addr, err := net.ResolveTCPAddr("tcp", connStr)
 	if err != nil {
 		panic(err)
@@ -40,47 +40,47 @@ func (ptListener *DefaultPointListener) StartListener(numForwarders, flushInterv
 		panic(err)
 	}
 
-	go ptListener.startServer(tcpListener)
-	log.Printf("Configured %d forwarders for %s listener on port: %d\n", numForwarders, format, ptListener.Port)
+	go l.startServer(tcpListener)
+	log.Printf("Configured %d forwarders for %s listener on port: %d\n", numForwarders, format, l.Port)
 }
 
-func (ptListener *DefaultPointListener) startServer(tcpListener *net.TCPListener) {
+func (l *DefaultPointListener) startServer(tcpListener *net.TCPListener) {
 	for {
 		// Listen for incoming connections
 		conn, err := tcpListener.Accept()
 		if err != nil || conn == nil {
-			log.Printf("%d-listener: error accepting connection: %v\n", ptListener.Port, err.Error())
+			log.Printf("%d-listener: error accepting connection: %v\n", l.Port, err.Error())
 			continue
 		}
 
 		// Handle connections in a new goroutine
-		go ptListener.handleRequest(conn)
+		go l.handleRequest(conn)
 	}
 }
 
 // Handles incoming requests.
-func (ptListener *DefaultPointListener) handleRequest(conn net.Conn) {
-	var ptDecoder decoder.PointDecoder = ptListener.Builder.Build()
+func (l *DefaultPointListener) handleRequest(conn net.Conn) {
+	var pd decoder.PointDecoder = l.Builder.Build()
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		pointBytes := scanner.Bytes()
-		point, err := ptDecoder.Decode(pointBytes)
+		point, err := pd.Decode(pointBytes)
 		if err != nil {
 			log.Println("Error decoding point", err)
-			ptListener.ptHandler.HandleBlockedPoint(string(pointBytes))
+			l.handler.HandleBlockedPoint(string(pointBytes))
 			continue
 		}
-		ptListener.ptHandler.ReportPoint(point)
+		l.handler.ReportPoint(point)
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Printf("%d-listener: error during scan: %v\n", ptListener.Port, err)
+		log.Printf("%d-listener: error during scan: %v\n", l.Port, err)
 	}
 	conn.Close()
 }
 
-func (ptListener *DefaultPointListener) StopListener() {
+func (l *DefaultPointListener) Stop() {
 	//TODO: gracefully shutdown TCP listener
-	log.Println("Stopping listener", ptListener.Port)
-	ptListener.ptHandler.stop()
+	log.Println("Stopping listener", l.Port)
+	l.handler.stop()
 }

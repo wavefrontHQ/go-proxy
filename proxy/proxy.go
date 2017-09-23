@@ -52,7 +52,7 @@ func waitForShutdown() {
 
 func stopListeners() {
 	for _, listener := range listeners {
-		listener.StopListener()
+		listener.Stop()
 	}
 }
 
@@ -98,7 +98,7 @@ func checkFlags() {
 }
 
 func startListener(listener points.PointListener, service api.WavefrontAPI) {
-	listener.StartListener(*fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
+	listener.Start(*fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
 		api.FORMAT_GRAPHITE_V2, api.GRAPHITE_BLOCK_WORK_UNIT, service)
 }
 

@@ -12,23 +12,6 @@ import (
 	"time"
 )
 
-const GET_CONFIG_SUFFIX = "/daemon/%s/config"
-const POST_DATA_SUFFIX = "/daemon/%s/pushdata/%s?format=%s"
-const CHECKIN_SUFFIX = "/daemon/%s/checkin"
-const HOSTNAME = "hostname"
-const TOKEN = "token"
-const VERSION = "version"
-const CURRENT_MILLIS = "currentMillis"
-const BYTES_LEFT = "bytesLeftForBuffer"
-const BYTES_PER_MIN = "bytesPerMinuteForBuffer"
-const CURR_QUEUE_SIZE = "currentQueueSize"
-const LOCAL = "local"
-const PUSH = "push"
-const EPHEMERAL = "ephemeral"
-const CONTENT_TYPE = "Content-Type"
-const TEXT_PLAIN = "text/plain"
-const APPLICATION_JSON = "application/json"
-
 var client = &http.Client{Timeout: time.Second * 10}
 var pointError = errors.New("Invalid points")
 
@@ -37,10 +20,7 @@ type WavefrontAPI interface {
 	Checkin(currentMillis int64, localAgent, pushAgent, ephemeral bool, agentMetrics []byte) (*config.AgentConfig, error)
 	PostData(workUnitId, format, pointLines string) (*http.Response, error)
 	AgentError(details string)
-	AgentConfigProcessed()
-	HostConnectionFailed(details string)
-	HostConnectionEstablished()
-	HostAuthenticated()
+	AgentConfigProcessed() error
 }
 
 type WavefrontAPIService struct {
@@ -142,18 +122,18 @@ func (service *WavefrontAPIService) AgentError(details string) {
 	log.Println("AgentError")
 }
 
-func (service *WavefrontAPIService) AgentConfigProcessed() {
+func (service *WavefrontAPIService) AgentConfigProcessed() error {
 	log.Println("AgentConfigProcessed")
-}
 
-func (service *WavefrontAPIService) HostConnectionFailed(details string) {
-	log.Println("HostConnectionFailed")
-}
+	apiURL := service.ServerURL + CONFIG_PROCESSED_SUFFIX
+	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
-func (service *WavefrontAPIService) HostConnectionEstablished() {
-	log.Println("HostConnectionEstablished")
-}
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		return err
+	}
 
-func (service *WavefrontAPIService) HostAuthenticated() {
-	log.Println("HostAuthenticated")
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	return err
 }

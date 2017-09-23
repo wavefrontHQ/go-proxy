@@ -10,7 +10,7 @@ type GraphiteDecoder struct {
 	parser *parser.PointParser
 }
 
-func (decoder *GraphiteDecoder) Decode(b []byte) (*common.Point, error) {
+func (d *GraphiteDecoder) Decode(b []byte) (*common.Point, error) {
 	if b == nil {
 		return &common.Point{}, DECODE_ERROR
 	}
@@ -21,7 +21,7 @@ func (decoder *GraphiteDecoder) Decode(b []byte) (*common.Point, error) {
 		return &common.Point{}, DECODE_ERROR
 	}
 
-	point, err := decoder.parser.Parse(b)
+	point, err := d.parser.Parse(b)
 	if err != nil {
 		return point, err
 	}

@@ -31,14 +31,12 @@ func validate(point *common.Point) error {
 }
 
 func handleSource(point *common.Point) error {
-	source, ok := point.Tags[SOURCE]
-	if ok {
+	if source, ok := point.Tags[SOURCE]; ok {
 		delete(point.Tags, SOURCE)
 		point.Source = source
 		return nil
 	} else {
-		host, ok := point.Tags[HOST]
-		if ok {
+		if host, ok := point.Tags[HOST]; ok {
 			delete(point.Tags, SOURCE)
 			point.Source = host
 			return nil

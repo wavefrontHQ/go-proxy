@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func buildAgentMetrics() []byte {
+func buildAgentMetrics() ([]byte, error) {
 	var agentMetrics map[string]interface{} = make(map[string]interface{})
 	metrics.DefaultRegistry.Each(func(name string, i interface{}) {
 		switch metric := i.(type) {
@@ -16,10 +16,5 @@ func buildAgentMetrics() []byte {
 		}
 		//TODO: expand to support other types (timer, gauge etc)
 	})
-
-	b, err := json.Marshal(agentMetrics)
-	if err != nil {
-		log.Println("Error creating agent metrics", err)
-	}
-	return b
+	return json.Marshal(agentMetrics)
 }

@@ -7,8 +7,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	//TODO: remove
-	//"os"
 )
 
 type PointForwarder interface {
@@ -37,29 +35,26 @@ type DefaultPointForwarder struct {
 	pointsFlushTime metrics.Timer
 }
 
-func (forwarder *DefaultPointForwarder) init() {
-	forwarder.pointsReceived = metrics.GetOrRegisterCounter("points."+forwarder.prefix+".received", nil)
-	forwarder.pointsBlocked = metrics.GetOrRegisterCounter("points."+forwarder.prefix+".blocked", nil)
-	forwarder.pointsQueued = metrics.GetOrRegisterCounter("points."+forwarder.prefix+".queued", nil)
-	forwarder.pointsSent = metrics.GetOrRegisterCounter("points."+forwarder.prefix+".sent", nil)
-	forwarder.pointsFlushTime = metrics.GetOrRegisterTimer("flush."+forwarder.prefix+".duration", nil)
-	go forwarder.flushPoints()
-
-	//TODO: report to the Wavefront instance instead (using wavefront-reporter or directly)
-	//go metrics.Log(metrics.DefaultRegistry, 5 * time.Second, log.New(os.Stderr, "metrics: ", log.Lmicroseconds))
+func (f *DefaultPointForwarder) init() {
+	f.pointsReceived = metrics.GetOrRegisterCounter("points."+f.prefix+".received", nil)
+	f.pointsBlocked = metrics.GetOrRegisterCounter("points."+f.prefix+".blocked", nil)
+	f.pointsQueued = metrics.GetOrRegisterCounter("points."+f.prefix+".queued", nil)
+	f.pointsSent = metrics.GetOrRegisterCounter("points."+f.prefix+".sent", nil)
+	f.pointsFlushTime = metrics.GetOrRegisterTimer("flush."+f.prefix+".duration", nil)
+	go f.flushPoints()
 }
 
-func (forwarder *DefaultPointForwarder) flushPoints() {
-	for range forwarder.pushTicker.C {
-		forwarder.pointsFlushTime.Time(func() {
-			forwarder.post(forwarder.getPointsBatch())
+func (f *DefaultPointForwarder) flushPoints() {
+	for range f.pushTicker.C {
+		f.pointsFlushTime.Time(func() {
+			f.post(f.getPointsBatch())
 		})
 	}
-	log.Printf("%s: exiting flushPoints", forwarder.name)
+	log.Printf("%s: exiting flushPoints", f.name)
 }
 
-func (forwarder *DefaultPointForwarder) stop() {
-	forwarder.pushTicker.Stop()
+func (f *DefaultPointForwarder) stop() {
+	f.pushTicker.Stop()
 }
 
 func min(x, y int) int {
@@ -69,24 +64,24 @@ func min(x, y int) int {
 	return y
 }
 
-func (forwarder *DefaultPointForwarder) getPointsBatch() []string {
-	forwarder.mtx.Lock()
-	currLen := len(forwarder.points)
-	batchSize := min(currLen, forwarder.maxFlushSize)
-	batchPoints := forwarder.points[:batchSize]
-	forwarder.points = forwarder.points[batchSize:currLen]
-	forwarder.mtx.Unlock()
+func (f *DefaultPointForwarder) getPointsBatch() []string {
+	f.mtx.Lock()
+	currLen := len(f.points)
+	batchSize := min(currLen, f.maxFlushSize)
+	batchPoints := f.points[:batchSize]
+	f.points = f.points[batchSize:currLen]
+	f.mtx.Unlock()
 	return batchPoints
 }
 
-func (forwarder *DefaultPointForwarder) buffer(points []string) {
-	forwarder.mtx.Lock()
-	currentSize := len(forwarder.points)
+func (f *DefaultPointForwarder) buffer(points []string) {
+	f.mtx.Lock()
+	currentSize := len(f.points)
 	pointsSize := len(points)
-	forwarder.pointsQueued.Inc(int64(pointsSize))
+	f.pointsQueued.Inc(int64(pointsSize))
 
 	// do not add more points than the buffer is configured for
-	trimSize := currentSize + pointsSize - forwarder.maxBufferSize
+	trimSize := currentSize + pointsSize - f.maxBufferSize
 	if trimSize > 0 {
 		retainSize := pointsSize - trimSize
 		if retainSize <= 0 {
@@ -97,38 +92,38 @@ func (forwarder *DefaultPointForwarder) buffer(points []string) {
 	}
 
 	if len(points) > 0 {
-		forwarder.points = append(points, forwarder.points...)
+		f.points = append(points, f.points...)
 	}
-	forwarder.mtx.Unlock()
+	f.mtx.Unlock()
 }
 
-func (forwarder *DefaultPointForwarder) addPoint(point string) {
-	forwarder.pointsReceived.Inc(1)
+func (f *DefaultPointForwarder) addPoint(point string) {
+	f.pointsReceived.Inc(1)
 	//TODO: do not append if length greater than max buffer size?
-	forwarder.mtx.Lock()
-	forwarder.points = append(forwarder.points, point)
-	forwarder.mtx.Unlock()
+	f.mtx.Lock()
+	f.points = append(f.points, point)
+	f.mtx.Unlock()
 }
 
-func (forwarder *DefaultPointForwarder) incrementBlockedPoint() {
-	forwarder.pointsBlocked.Inc(1)
+func (f *DefaultPointForwarder) incrementBlockedPoint() {
+	f.pointsBlocked.Inc(1)
 }
 
-func (forwarder *DefaultPointForwarder) post(points []string) {
+func (f *DefaultPointForwarder) post(points []string) {
 	ptsLength := len(points)
 	if ptsLength == 0 {
 		return
 	}
 
 	pointLines := strings.Join(points, "\n")
-	resp, err := forwarder.api.PostData(forwarder.workUnitId, forwarder.dataFormat, pointLines)
+	resp, err := f.api.PostData(f.workUnitId, f.dataFormat, pointLines)
 
 	if err != nil || (resp.StatusCode == api.NOT_ACCEPTABLE_STATUS_CODE) {
 		if err != nil {
-			log.Printf("%s: error posting data: %v\n", forwarder.name, err)
+			log.Printf("%s: error posting data: %v\n", f.name, err)
 		}
-		forwarder.buffer(points)
+		f.buffer(points)
 		return
 	}
-	forwarder.pointsSent.Inc(int64(ptsLength))
+	f.pointsSent.Inc(int64(ptsLength))
 }

@@ -18,42 +18,39 @@ type DefaultAgent struct {
 	Ephemeral  bool
 }
 
-func (agent *DefaultAgent) InitAgent() {
+func (a *DefaultAgent) InitAgent() {
 	// fetch configuration once per minute
 	checkinTicker := time.NewTicker(time.Minute * time.Duration(1))
-	go agent.checkin(checkinTicker)
+	go a.checkin(checkinTicker)
 }
 
-func (agent *DefaultAgent) checkin(ticker *time.Ticker) {
+func (a *DefaultAgent) checkin(ticker *time.Ticker) {
 	for range ticker.C {
 		log.Println("Fetching configuration")
-		agent.doCheckin()
+		a.doCheckin()
 	}
 }
 
-//func (agent *DefaultAgent) doFetchConfig() {
-//	//TODO: fetch config from server periodically (figure out parameters) and update forwarder
-//	// parameters should include the latest agent metrics
-//	currentTime := getCurrentTime()
-//	agentConfig, err := agent.ApiService.GetConfig(currentTime, 0, 0, 0)
-//	if err != nil {
-//		log.Println("Error fetching config", err)
-//		return
-//	}
-//	log.Println("AgentConfig", *agentConfig)
-//	agent.ApiService.AgentConfigProcessed()
-//}
-
-func (agent *DefaultAgent) doCheckin() {
-	currentTime := getCurrentTime()
-	agentMetrics := buildAgentMetrics()
-	agentConfig, err := agent.ApiService.Checkin(currentTime, agent.LocalAgent, agent.PushAgent, agent.Ephemeral, agentMetrics)
+func (a *DefaultAgent) doCheckin() {
+	agentMetrics, err := buildAgentMetrics()
 	if err != nil {
-		log.Println("Error fetching config", err)
+		log.Println("buildAgentMetrics error", err)
 		return
 	}
-	log.Println("Checkin-AgentConfig", *agentConfig)
-	agent.ApiService.AgentConfigProcessed()
+
+	currentTime := getCurrentTime()
+	agentConfig, err := a.ApiService.Checkin(currentTime, a.LocalAgent, a.PushAgent, a.Ephemeral, agentMetrics)
+	if err != nil {
+		log.Println("Checkin error", err)
+		return
+	}
+
+	//TODO: update forwarder based on fetched configuration
+	log.Println("AgentConfig", *agentConfig)
+	err = a.ApiService.AgentConfigProcessed()
+	if err != nil {
+		log.Println("AgentConfigProcessed error", err)
+	}
 }
 
 func getCurrentTime() int64 {
