@@ -3,10 +3,11 @@ package points
 import (
 	"bufio"
 	"fmt"
-	"github.com/wavefronthq/go-proxy/api"
-	"github.com/wavefronthq/go-proxy/points/decoder"
 	"log"
 	"net"
+
+	"github.com/wavefronthq/go-proxy/api"
+	"github.com/wavefronthq/go-proxy/points/decoder"
 )
 
 // Interface that handles listening for points

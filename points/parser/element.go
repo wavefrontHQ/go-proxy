@@ -3,9 +3,10 @@ package parser
 import (
 	"bytes"
 	"fmt"
-	"github.com/wavefronthq/go-proxy/common"
 	"strconv"
 	"time"
+
+	"github.com/wavefronthq/go-proxy/common"
 )
 
 var EOF_ERROR = fmt.Errorf("EOF")

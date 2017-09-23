@@ -2,6 +2,7 @@ package decoder
 
 import (
 	"fmt"
+
 	"github.com/wavefronthq/go-proxy/common"
 )
 

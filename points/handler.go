@@ -2,11 +2,12 @@ package points
 
 import (
 	"fmt"
-	"github.com/wavefronthq/go-proxy/api"
-	"github.com/wavefronthq/go-proxy/common"
 	"log"
 	"math/rand"
 	"time"
+
+	"github.com/wavefronthq/go-proxy/api"
+	"github.com/wavefronthq/go-proxy/common"
 )
 
 const MIN_FORWARDERS = 2

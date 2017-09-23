@@ -2,8 +2,9 @@ package agent
 
 import (
 	"encoding/json"
-	"github.com/rcrowley/go-metrics"
 	"log"
+
+	"github.com/rcrowley/go-metrics"
 )
 
 func buildAgentMetrics() ([]byte, error) {

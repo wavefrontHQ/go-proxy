@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/wavefronthq/go-proxy/config"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/wavefronthq/go-proxy/config"
 )
 
 var client = &http.Client{Timeout: time.Second * 10}

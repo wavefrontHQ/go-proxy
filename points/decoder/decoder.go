@@ -2,6 +2,7 @@ package decoder
 
 import (
 	"errors"
+
 	"github.com/wavefronthq/go-proxy/common"
 )
 

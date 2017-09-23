@@ -1,9 +1,10 @@
 package agent
 
 import (
-	"github.com/wavefronthq/go-proxy/api"
 	"log"
 	"time"
+
+	"github.com/wavefronthq/go-proxy/api"
 )
 
 type WavefrontAgent interface {

@@ -2,9 +2,10 @@ package agent
 
 import (
 	"bufio"
-	satori "github.com/satori/go.uuid"
 	"log"
 	"os"
+
+	satori "github.com/satori/go.uuid"
 )
 
 func CreateOrGetAgentId(idFile string) string {

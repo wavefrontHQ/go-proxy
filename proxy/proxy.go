@@ -2,15 +2,16 @@ package main
 
 import (
 	"flag"
-	"github.com/wavefronthq/go-proxy/agent"
-	"github.com/wavefronthq/go-proxy/api"
-	"github.com/wavefronthq/go-proxy/points"
-	"github.com/wavefronthq/go-proxy/points/decoder"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
+
+	"github.com/wavefronthq/go-proxy/agent"
+	"github.com/wavefronthq/go-proxy/api"
+	"github.com/wavefronthq/go-proxy/points"
+	"github.com/wavefronthq/go-proxy/points/decoder"
 )
 
 var version = "0.1"

@@ -1,12 +1,13 @@
 package points
 
 import (
-	"github.com/rcrowley/go-metrics"
-	"github.com/wavefronthq/go-proxy/api"
 	"log"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rcrowley/go-metrics"
+	"github.com/wavefronthq/go-proxy/api"
 )
 
 type PointForwarder interface {

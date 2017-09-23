@@ -2,8 +2,9 @@ package parser
 
 import (
 	"bytes"
-	"github.com/wavefronthq/go-proxy/common"
 	"log"
+
+	"github.com/wavefronthq/go-proxy/common"
 )
 
 const MAX_BUFFER_SIZE = 2
