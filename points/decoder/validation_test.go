@@ -20,15 +20,25 @@ func TestValidPoints(t *testing.T) {
 func TestInvalidPoints(t *testing.T) {
 	longName := getLongString(1025)
 	point := getPoint(longName, VALID_SOURCE)
-	err := validate(point)
-	if err == nil {
-		t.Error(err)
-	}
+	handleExpectedError(t, point)
 
 	point = getPoint(VALID_NAME, longName)
-	err = validate(point)
+	handleExpectedError(t, point)
+
+	point = getPoint("foo bar", VALID_SOURCE)
+	handleExpectedError(t, point)
+
+	point = getPoint("system.cpu.load#", VALID_SOURCE)
+	handleExpectedError(t, point)
+
+	point = getPoint("system.cpu.load\\", VALID_SOURCE)
+	handleExpectedError(t, point)
+}
+
+func handleExpectedError(t *testing.T, point *common.Point) {
+	err := validate(point)
 	if err == nil {
-		t.Error(err)
+		t.Errorf("Error expected but not detected for point: %v", point)
 	}
 }
 

@@ -13,6 +13,9 @@ type WavefrontAgent interface {
 type DefaultAgent struct {
 	AgentID    string
 	ApiService api.WavefrontAPI
+	LocalAgent bool
+	PushAgent  bool
+	Ephemeral  bool
 }
 
 func (agent *DefaultAgent) InitAgent() {
@@ -24,23 +27,35 @@ func (agent *DefaultAgent) InitAgent() {
 func (agent *DefaultAgent) checkin(ticker *time.Ticker) {
 	for range ticker.C {
 		log.Println("Fetching configuration")
-		agent.doFetchConfig()
+		agent.doCheckin()
 	}
 }
 
-func (agent *DefaultAgent) doFetchConfig() {
-	//TODO: fetch config from server periodically (figure out parameters) and update forwarder
-	// parameters should include the latest agent metrics
+//func (agent *DefaultAgent) doFetchConfig() {
+//	//TODO: fetch config from server periodically (figure out parameters) and update forwarder
+//	// parameters should include the latest agent metrics
+//	currentTime := getCurrentTime()
+//	agentConfig, err := agent.ApiService.GetConfig(currentTime, 0, 0, 0)
+//	if err != nil {
+//		log.Println("Error fetching config", err)
+//		return
+//	}
+//	log.Println("AgentConfig", *agentConfig)
+//	agent.ApiService.AgentConfigProcessed()
+//}
+
+func (agent *DefaultAgent) doCheckin() {
 	currentTime := getCurrentTime()
-	agentConfig, err := agent.ApiService.GetConfig(currentTime, 0, 0, 0)
+	agentMetrics := buildAgentMetrics()
+	agentConfig, err := agent.ApiService.Checkin(currentTime, agent.LocalAgent, agent.PushAgent, agent.Ephemeral, agentMetrics)
 	if err != nil {
 		log.Println("Error fetching config", err)
 		return
 	}
-	log.Println("AgentConfig", *agentConfig)
+	log.Println("Checkin-AgentConfig", *agentConfig)
 	agent.ApiService.AgentConfigProcessed()
 }
 
 func getCurrentTime() int64 {
-	return time.Now().UnixNano() / 1000000000
+	return time.Now().UnixNano() / 1000000
 }

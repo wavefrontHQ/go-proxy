@@ -15,6 +15,7 @@ all:
 
 deps:
 	go get github.com/satori/go.uuid
+	go get github.com/rcrowley/go-metrics
 
 proxy:
 	go build -i -o $(PROXY) ./proxy/proxy.go

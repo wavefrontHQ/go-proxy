@@ -38,9 +38,12 @@ var invalidPoints = [...]string{
 	"foo.metric 1.5",
 	"foo.metric 1",
 	"foo.metric 1.5.0 source=foo-linux",
+	"system.cpu.loadavg source=test.wavefront.com",
 }
 
 func TestValidPoints(t *testing.T) {
+
+	// Note: points valid for the parser may not be valid for the decoder (which performs additional validation)
 
 	//TODO: add more test cases and flesh out the parser until all tests pass
 	for _, pointLine := range validPoints {

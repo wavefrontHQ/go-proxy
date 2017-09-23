@@ -3,7 +3,6 @@ package decoder
 import (
 	"github.com/wavefronthq/go-proxy/common"
 	"github.com/wavefronthq/go-proxy/points/parser"
-	"log"
 	"strings"
 )
 
@@ -21,7 +20,6 @@ func (decoder *GraphiteDecoder) Decode(b []byte) (*common.Point, error) {
 	if pointLine == "" {
 		return &common.Point{}, DECODE_ERROR
 	}
-	log.Println("Decoder: pointLine", pointLine)
 
 	point, err := decoder.parser.Parse(b)
 	if err != nil {

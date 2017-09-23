@@ -14,8 +14,8 @@ const MAX_FORWARDERS = 16
 const MIN_FLUSH_INTERVAL = 1000
 
 type PointHandler interface {
-	initialize(numTasks, interval, buffer, maxFlush int, dataFormat, workUnitId string, service api.WavefrontAPI)
-	shutdown()
+	init(numTasks, interval, buffer, maxFlush int, dataFormat, workUnitId string, service api.WavefrontAPI)
+	stop()
 	ReportPoint(point *common.Point)
 	ReportPoints(points []*common.Point)
 	HandleBlockedPoint(pointLine string)
@@ -26,27 +26,34 @@ type DefaultPointHandler struct {
 	pointForwarders []PointForwarder
 }
 
-func (handler *DefaultPointHandler) initialize(numForwarders, flushInterval, maxBufferSize, maxFlushSize int,
+func (handler *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, maxFlushSize int,
 	dataFormat, workUnitId string, service api.WavefrontAPI) {
 
 	if numForwarders <= 0 || numForwarders > MAX_FORWARDERS {
-		log.Println("numForwarders", numForwarders)
+		log.Printf("%s-handler: numForwarders=%d\n", handler.name, numForwarders)
 		numForwarders = MIN_FORWARDERS
 	}
 
 	if flushInterval < MIN_FLUSH_INTERVAL {
-		log.Println("flushInterval", flushInterval)
+		log.Printf("%s-handler: flushInterval=%d\n", handler.name, flushInterval)
 		flushInterval = MIN_FLUSH_INTERVAL
 	}
 
 	handler.pointForwarders = make([]PointForwarder, numForwarders)
 	for i := 0; i < numForwarders; i++ {
-		forwarderName := fmt.Sprintf("%s-%s-%d", handler.name, "Forwarder", i)
-		ticker := time.NewTicker(time.Millisecond * time.Duration(flushInterval))
-		pointForwarder := &DefaultPointForwarder{name: forwarderName, api: service, dataFormat: dataFormat,
-			workUnitId: workUnitId, maxFlushSize: maxFlushSize, maxBufferSize: maxBufferSize, pushTicker: ticker}
+		forwarderName := fmt.Sprintf("%s-forwarder-%d", handler.name, i)
+		pointForwarder := &DefaultPointForwarder{
+			name:          forwarderName,
+			prefix:        handler.name,
+			api:           service,
+			dataFormat:    dataFormat,
+			workUnitId:    workUnitId,
+			maxFlushSize:  maxFlushSize,
+			maxBufferSize: maxBufferSize,
+			pushTicker:    time.NewTicker(time.Millisecond * time.Duration(flushInterval)),
+		}
 		handler.pointForwarders[i] = pointForwarder
-		go pointForwarder.flushPoints()
+		pointForwarder.init()
 	}
 }
 
@@ -56,7 +63,7 @@ func (handler *DefaultPointHandler) getPointForwarder() PointForwarder {
 }
 
 func (handler *DefaultPointHandler) ReportPoint(point *common.Point) {
-	log.Printf("%s: %+v\n", handler.name, point)
+	//log.Printf("%s-handler: %+v\n", handler.name, point)
 	forwarder := handler.getPointForwarder()
 	forwarder.addPoint(pointToString(point))
 }
@@ -68,7 +75,8 @@ func (handler *DefaultPointHandler) ReportPoints(points []*common.Point) {
 }
 
 func (handler *DefaultPointHandler) HandleBlockedPoint(pointLine string) {
-	log.Println("Blocked point", pointLine)
+	log.Printf("%s-handler: blocked point: %s", handler.name, pointLine)
+	handler.getPointForwarder().incrementBlockedPoint()
 }
 
 func pointToString(point *common.Point) string {
@@ -79,11 +87,10 @@ func pointToString(point *common.Point) string {
 	for k, v := range point.Tags {
 		pointLine = fmt.Sprintf(pointLine+" %s=%s", k, v)
 	}
-	log.Println("Handler: pointLine", pointLine)
 	return pointLine
 }
 
-func (handler *DefaultPointHandler) shutdown() {
+func (handler *DefaultPointHandler) stop() {
 	for _, forwarder := range handler.pointForwarders {
 		forwarder.stop()
 	}

@@ -109,7 +109,7 @@ func startListeners(service api.WavefrontAPI) {
 		if err != nil {
 			log.Fatal("Invalid port " + portStr)
 		}
-		listener := &points.DefaultPointListener{Port: port, Name: "Graphite", Builder: decoder.GraphiteBuilder{}}
+		listener := &points.DefaultPointListener{Port: port, Builder: decoder.GraphiteBuilder{}}
 		listeners = append(listeners, listener)
 		startListener(listener, service)
 	}
@@ -126,8 +126,13 @@ func main() {
 	log.Println("Starting Wavefront Proxy")
 
 	agentID := agent.CreateOrGetAgentId(*fIdFilePtr)
-	apiService := &api.WavefrontAPIService{ServerURL: *fServerPtr, AgentID: agentID,
-		Hostname: *fHostnamePtr, Token: *fTokenPtr, Version: version}
+	apiService := &api.WavefrontAPIService{
+		ServerURL: *fServerPtr,
+		AgentID:   agentID,
+		Hostname:  *fHostnamePtr,
+		Token:     *fTokenPtr,
+		Version:   version,
+	}
 
 	initAgent(agentID, apiService)
 	startListeners(apiService)
