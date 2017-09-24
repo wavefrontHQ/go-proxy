@@ -14,7 +14,6 @@ var (
 	ErrEOF = errors.New("EOF")
 )
 
-
 // Interface for parsing line elements.
 type ElementParser interface {
 	parse(p *PointParser, pt *common.Point) error

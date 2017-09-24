@@ -8,6 +8,7 @@ PATH := $(subst :,/bin:,$(GOPATH))/bin:$(PATH)
 endif
 
 PROXY := wavefront-proxy
+LDFLAGS := $(LDFLAGS) -X main.version=$(VERSION)
 
 all:
 	$(MAKE) deps
@@ -18,7 +19,7 @@ deps:
 	go get github.com/rcrowley/go-metrics
 
 proxy:
-	go build -i -o $(PROXY) ./proxy/proxy.go
+	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./proxy/proxy.go
 
 go-install:
 	go install ./proxy

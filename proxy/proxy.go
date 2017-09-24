@@ -31,7 +31,7 @@ var (
 )
 
 var (
-	version   = "0.1"
+	version   string
 	listeners []points.PointListener
 )
 
@@ -127,7 +127,7 @@ func initAgent(agentID string, service api.WavefrontAPI) {
 func main() {
 	checkFlags()
 
-	log.Println("Starting Wavefront Proxy")
+	log.Printf("Starting Wavefront Proxy Version %s", version)
 
 	agentID := agent.CreateOrGetAgentId(*fIdFilePtr)
 	apiService := &api.WavefrontAPIService{
