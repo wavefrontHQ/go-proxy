@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/wavefronthq/go-proxy/api"
@@ -88,12 +89,10 @@ func (h *DefaultPointHandler) stop() {
 }
 
 func pointToString(point *common.Point) string {
-	//TODO: add quotes etc if not present around the point
-	// look into inbuilt Quote function
-	//<metricName> <metricValue> [<timestamp>] source=<source> [pointTags]
-	pointLine := fmt.Sprintf("%s %s %d source=%s", point.Name, point.Value, point.Timestamp, point.Source)
+	//<metricName> <metricValue> <timestamp> source=<source> [pointTags]
+	pointLine := fmt.Sprintf("%s %s %d source=%s", strconv.Quote(point.Name), point.Value, point.Timestamp, strconv.Quote(point.Source))
 	for k, v := range point.Tags {
-		pointLine = fmt.Sprintf(pointLine+" %s=%s", k, v)
+		pointLine = fmt.Sprintf(pointLine+" %s=%s", strconv.Quote(k), strconv.Quote(v))
 	}
 	return pointLine
 }

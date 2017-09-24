@@ -11,6 +11,7 @@ const (
 	sourceKey    = "source"
 	hostKey      = "host"
 	lengthErrStr = "Expected length less than %d, found %d"
+	charErrStr   = "Invalid character: %s"
 )
 
 var (
@@ -18,14 +19,14 @@ var (
 )
 
 func validate(point *common.Point) error {
-	nameLen := len(point.Name)
-	if nameLen <= 0 || nameLen >= 1024 {
-		return fmt.Errorf(lengthErrStr, 1024, nameLen)
+	err := validateStr(point.Name, 1024)
+	if err != nil {
+		return err
 	}
 
-	sourceLen := len(point.Source)
-	if sourceLen <= 0 || sourceLen >= 1024 {
-		return fmt.Errorf(lengthErrStr, 1024, sourceLen)
+	err = validateStr(point.Source, 1024)
+	if err != nil {
+		return err
 	}
 
 	for k, v := range point.Tags {
@@ -33,8 +34,32 @@ func validate(point *common.Point) error {
 		if totalLen >= 255 {
 			return fmt.Errorf(lengthErrStr, 254, totalLen)
 		}
+		err = validateRunes(k)
+		if err != nil {
+			return err
+		}
 	}
-	//TODO: validate source, metric name, tag key/value characters
+	return nil
+}
+
+func validateStr(s string, maxLen int) error {
+	strLen := len(s)
+	if strLen <= 0 || strLen >= maxLen {
+		return fmt.Errorf(lengthErrStr, maxLen, strLen)
+	}
+	return validateRunes(s)
+}
+
+func validateRunes(s string) error {
+	for idx, r := range s {
+		// Legal characters are 44-57 (,-./ and numbers), 65-90 (upper), 97-122 (lower), 95 (_)
+		if !(44 <= r && r <= 57) && !(65 <= r && r <= 90) && !(97 <= r && r <= 122) && r != 95 {
+			if idx != 0 || r != 126 {
+				// first character can be 126 (~)
+				return fmt.Errorf(charErrStr, string(r))
+			}
+		}
+	}
 	return nil
 }
 

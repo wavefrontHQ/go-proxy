@@ -164,7 +164,6 @@ func (ep *WhiteSpaceParser) parse(p *PointParser, pt *common.Point) error {
 
 func parseQuotedLiteral(p *PointParser) (string, error) {
 	var buf bytes.Buffer
-	buf.WriteString("\"")
 
 	//TODO: handle escaped quote scenario
 	tok, lit := p.scan()
@@ -176,7 +175,6 @@ func parseQuotedLiteral(p *PointParser) (string, error) {
 	if tok == EOF {
 		return "", fmt.Errorf("found %q, expected quotes", lit)
 	}
-	buf.WriteString("\"")
 	return buf.String(), nil
 }
 
