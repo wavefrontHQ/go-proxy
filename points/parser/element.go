@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -9,8 +10,12 @@ import (
 	"github.com/wavefronthq/go-proxy/common"
 )
 
-var EOF_ERROR = fmt.Errorf("EOF")
+var (
+	ErrEOF = errors.New("EOF")
+)
 
+
+// Interface for parsing line elements.
 type ElementParser interface {
 	parse(p *PointParser, pt *common.Point) error
 }
@@ -115,7 +120,7 @@ func (ep *LoopedParser) parse(p *PointParser, pt *common.Point) error {
 			return err
 		}
 		err = ep.wsPaser.parse(p, pt)
-		if err == EOF_ERROR {
+		if err == ErrEOF {
 			break
 		}
 	}
@@ -151,7 +156,7 @@ func (ep *WhiteSpaceParser) parse(p *PointParser, pt *common.Point) error {
 	tok, lit := p.scan()
 	if tok != WS {
 		if tok == EOF {
-			return EOF_ERROR
+			return ErrEOF
 		}
 		return fmt.Errorf("found %q, expected whitespace", lit)
 	}

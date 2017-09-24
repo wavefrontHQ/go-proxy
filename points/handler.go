@@ -10,16 +10,19 @@ import (
 	"github.com/wavefronthq/go-proxy/common"
 )
 
-const MIN_FORWARDERS = 2
-const MAX_FORWARDERS = 16
-const MIN_FLUSH_INTERVAL = 1000
+const (
+	minForwarders    = 2
+	maxForwarders    = 16
+	minFlushInterval = 1000
+)
 
+// Interface that handles the reporting of points.
 type PointHandler interface {
 	init(numTasks, interval, buffer, maxFlush int, dataFormat, workUnitId string, service api.WavefrontAPI)
 	stop()
-	ReportPoint(point *common.Point)
-	ReportPoints(points []*common.Point)
-	HandleBlockedPoint(pointLine string)
+	reportPoint(point *common.Point)
+	reportPoints(points []*common.Point)
+	handleBlockedPoint(pointLine string)
 }
 
 type DefaultPointHandler struct {
@@ -30,14 +33,14 @@ type DefaultPointHandler struct {
 func (h *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, maxFlushSize int,
 	dataFormat, workUnitId string, service api.WavefrontAPI) {
 
-	if numForwarders <= 0 || numForwarders > MAX_FORWARDERS {
+	if numForwarders <= 0 || numForwarders > maxForwarders {
 		log.Printf("%s-handler: numForwarders=%d\n", h.name, numForwarders)
-		numForwarders = MIN_FORWARDERS
+		numForwarders = minForwarders
 	}
 
-	if flushInterval < MIN_FLUSH_INTERVAL {
+	if flushInterval < minFlushInterval {
 		log.Printf("%s-handler: flushInterval=%d\n", h.name, flushInterval)
-		flushInterval = MIN_FLUSH_INTERVAL
+		flushInterval = minFlushInterval
 	}
 
 	h.pointForwarders = make([]PointForwarder, numForwarders)
@@ -62,18 +65,18 @@ func (h *DefaultPointHandler) getForwarder() PointForwarder {
 	return h.pointForwarders[index]
 }
 
-func (h *DefaultPointHandler) ReportPoint(point *common.Point) {
+func (h *DefaultPointHandler) reportPoint(point *common.Point) {
 	forwarder := h.getForwarder()
 	forwarder.addPoint(pointToString(point))
 }
 
-func (h *DefaultPointHandler) ReportPoints(points []*common.Point) {
+func (h *DefaultPointHandler) reportPoints(points []*common.Point) {
 	for _, point := range points {
-		h.ReportPoint(point)
+		h.reportPoint(point)
 	}
 }
 
-func (h *DefaultPointHandler) HandleBlockedPoint(pointLine string) {
+func (h *DefaultPointHandler) handleBlockedPoint(pointLine string) {
 	log.Printf("%s-handler: blocked point: %s", h.name, pointLine)
 	h.getForwarder().incrementBlockedPoint()
 }

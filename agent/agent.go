@@ -7,6 +7,7 @@ import (
 	"github.com/wavefronthq/go-proxy/api"
 )
 
+// Agent interface.
 type WavefrontAgent interface {
 	InitAgent()
 }

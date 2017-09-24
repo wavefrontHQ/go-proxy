@@ -6,7 +6,9 @@ import (
 	"github.com/wavefronthq/go-proxy/common"
 )
 
-var DECODE_ERROR = errors.New("DecodeError: incorrect point format")
+var (
+	ErrInvalidPoint = errors.New("DecodeError: incorrect point format")
+)
 
 // Interface for decoding a point line
 type PointDecoder interface {

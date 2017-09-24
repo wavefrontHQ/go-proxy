@@ -14,23 +14,26 @@ import (
 	"github.com/wavefronthq/go-proxy/points/decoder"
 )
 
-var version = "0.1"
-
 // flags
-var fCfgPtr = flag.String("file", "", "Proxy configuration file")
-var fTokenPtr = flag.String("token", "", "Wavefront API token")
-var fServerPtr = flag.String("server", "", "Wavefront Server URL")
-var fHostnamePtr = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
-var fWavefrontPortsPtr = flag.String("pushListenerPorts", "3878",
-	"Comma-separated list of ports to listen on for Wavefront formatted data. Defaults to 2878.")
-var fFlushThreadsPtr = flag.Int("flushThreads", 2, "Number of threads that flush to the server.")
-var fFlushIntervalPtr = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server. Typically 1000.")
-var fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush. Typically 40000.")
-var fMaxBufferSizePtr = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory. Defaults to 640000.")
-var fIdFilePtr = flag.String("idFile", ".wavefront_id", "The agentId file.")
-var fLogFilePtr = flag.String("logFile", "", "Output log file")
+var (
+	fCfgPtr            = flag.String("file", "", "Proxy configuration file")
+	fTokenPtr          = flag.String("token", "", "Wavefront API token")
+	fServerPtr         = flag.String("server", "", "Wavefront Server URL")
+	fHostnamePtr       = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
+	fWavefrontPortsPtr = flag.String("pushListenerPorts", "3878",
+		"Comma-separated list of ports to listen on for Wavefront formatted data. Defaults to 2878.")
+	fFlushThreadsPtr   = flag.Int("flushThreads", 2, "Number of threads that flush to the server.")
+	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server. Typically 1000.")
+	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush. Typically 40000.")
+	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory. Defaults to 640000.")
+	fIdFilePtr         = flag.String("idFile", ".wavefront_id", "The agentId file.")
+	fLogFilePtr        = flag.String("logFile", "", "Output log file")
+)
 
-var listeners []points.PointListener
+var (
+	version   = "0.1"
+	listeners []points.PointListener
+)
 
 func parseFile(filename string) {
 	//TODO: make config file driven
@@ -100,7 +103,7 @@ func checkFlags() {
 
 func startListener(listener points.PointListener, service api.WavefrontAPI) {
 	listener.Start(*fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
-		api.FORMAT_GRAPHITE_V2, api.GRAPHITE_BLOCK_WORK_UNIT, service)
+		api.FormatGraphiteV2, api.GraphiteBlockWorkUnit, service)
 }
 
 func startListeners(service api.WavefrontAPI) {

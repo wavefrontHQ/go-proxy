@@ -13,13 +13,13 @@ type GraphiteDecoder struct {
 
 func (d *GraphiteDecoder) Decode(b []byte) (*common.Point, error) {
 	if b == nil {
-		return &common.Point{}, DECODE_ERROR
+		return &common.Point{}, ErrInvalidPoint
 	}
 
 	pointLine := string(b)
 	pointLine = strings.TrimSpace(pointLine)
 	if pointLine == "" {
-		return &common.Point{}, DECODE_ERROR
+		return &common.Point{}, ErrInvalidPoint
 	}
 
 	point, err := d.parser.Parse(b)

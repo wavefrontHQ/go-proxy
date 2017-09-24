@@ -10,7 +10,7 @@ import (
 	"github.com/wavefronthq/go-proxy/points/decoder"
 )
 
-// Interface that handles listening for points
+// Interface that handles listening for points.
 type PointListener interface {
 	Start(numForwarders, flushInterval, bufferSize, maxFlushSize int, format, workUnitId string, service api.WavefrontAPI)
 	Stop()
@@ -68,10 +68,10 @@ func (l *DefaultPointListener) handleRequest(conn net.Conn) {
 		point, err := pd.Decode(pointBytes)
 		if err != nil {
 			log.Println("Error decoding point", err)
-			l.handler.HandleBlockedPoint(string(pointBytes))
+			l.handler.handleBlockedPoint(string(pointBytes))
 			continue
 		}
-		l.handler.ReportPoint(point)
+		l.handler.reportPoint(point)
 	}
 
 	if err := scanner.Err(); err != nil {

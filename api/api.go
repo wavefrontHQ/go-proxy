@@ -13,9 +13,12 @@ import (
 	"github.com/wavefronthq/go-proxy/config"
 )
 
-var client = &http.Client{Timeout: time.Second * 10}
-var pointError = errors.New("Invalid points")
+var (
+	client     = &http.Client{Timeout: time.Second * 10}
+	pointError = errors.New("Invalid points")
+)
 
+// API interface for the agent.
 type WavefrontAPI interface {
 	GetConfig(currentMillis, bytesLeft, bytesPerMinute, currentQueueSize int64) (*config.AgentConfig, error)
 	Checkin(currentMillis int64, localAgent, pushAgent, ephemeral bool, agentMetrics []byte) (*config.AgentConfig, error)
@@ -35,7 +38,7 @@ type WavefrontAPIService struct {
 func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPerMinute, currentQueueSize int64) (*config.AgentConfig, error) {
 	log.Println("GetConfig")
 
-	apiURL := service.ServerURL + GET_CONFIG_SUFFIX
+	apiURL := service.ServerURL + getConfigSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
 	req, err := http.NewRequest("GET", apiURL, nil)
@@ -44,13 +47,13 @@ func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPer
 	}
 
 	q := req.URL.Query()
-	q.Add(HOSTNAME, service.Hostname)
-	q.Add(TOKEN, service.Token)
-	q.Add(VERSION, service.Version)
-	q.Add(CURRENT_MILLIS, strconv.FormatInt(currentMillis, 10))
-	q.Add(BYTES_LEFT, strconv.FormatInt(bytesLeft, 10))
-	q.Add(BYTES_PER_MIN, strconv.FormatInt(bytesPerMinute, 10))
-	q.Add(CURR_QUEUE_SIZE, strconv.FormatInt(currentQueueSize, 10))
+	q.Add(hostnameParam, service.Hostname)
+	q.Add(tokenParam, service.Token)
+	q.Add(versionParam, service.Version)
+	q.Add(currentMillisParam, strconv.FormatInt(currentMillis, 10))
+	q.Add(bytesLeftParam, strconv.FormatInt(bytesLeft, 10))
+	q.Add(bytesPerMinParam, strconv.FormatInt(bytesPerMinute, 10))
+	q.Add(currentQueueSizeParam, strconv.FormatInt(currentQueueSize, 10))
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := client.Do(req)
@@ -59,31 +62,31 @@ func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPer
 	}
 	defer resp.Body.Close()
 
-	config := &config.AgentConfig{}
-	err = json.NewDecoder(resp.Body).Decode(config)
-	return config, err
+	cfg := &config.AgentConfig{}
+	err = json.NewDecoder(resp.Body).Decode(cfg)
+	return cfg, err
 }
 
 func (service *WavefrontAPIService) Checkin(currentMillis int64, localAgent, pushAgent, ephemeral bool, agentMetrics []byte) (*config.AgentConfig, error) {
 	log.Println("Checkin")
 
-	apiURL := service.ServerURL + CHECKIN_SUFFIX
+	apiURL := service.ServerURL + checkinSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(agentMetrics))
-	req.Header.Set(CONTENT_TYPE, APPLICATION_JSON)
+	req.Header.Set(contentType, applicationJSON)
 	if err != nil {
 		return &config.AgentConfig{}, err
 	}
 
 	q := req.URL.Query()
-	q.Add(HOSTNAME, service.Hostname)
-	q.Add(TOKEN, service.Token)
-	q.Add(VERSION, service.Version)
-	q.Add(CURRENT_MILLIS, strconv.FormatInt(currentMillis, 10))
-	q.Add(LOCAL, strconv.FormatBool(localAgent))
-	q.Add(PUSH, strconv.FormatBool(pushAgent))
-	q.Add(EPHEMERAL, strconv.FormatBool(ephemeral))
+	q.Add(hostnameParam, service.Hostname)
+	q.Add(tokenParam, service.Token)
+	q.Add(versionParam, service.Version)
+	q.Add(currentMillisParam, strconv.FormatInt(currentMillis, 10))
+	q.Add(localParam, strconv.FormatBool(localAgent))
+	q.Add(pushParam, strconv.FormatBool(pushAgent))
+	q.Add(ephemeralParam, strconv.FormatBool(ephemeral))
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := client.Do(req)
@@ -92,9 +95,9 @@ func (service *WavefrontAPIService) Checkin(currentMillis int64, localAgent, pus
 	}
 	defer resp.Body.Close()
 
-	config := &config.AgentConfig{}
-	err = json.NewDecoder(resp.Body).Decode(config)
-	return config, err
+	cfg := &config.AgentConfig{}
+	err = json.NewDecoder(resp.Body).Decode(cfg)
+	return cfg, err
 }
 
 func (service *WavefrontAPIService) PostData(workUnitId, format, pointLines string) (*http.Response, error) {
@@ -102,11 +105,11 @@ func (service *WavefrontAPIService) PostData(workUnitId, format, pointLines stri
 		return &http.Response{}, pointError
 	}
 
-	apiURL := service.ServerURL + POST_DATA_SUFFIX
+	apiURL := service.ServerURL + postDataSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID, workUnitId, format)
 
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBufferString(pointLines))
-	req.Header.Set(CONTENT_TYPE, TEXT_PLAIN)
+	req.Header.Set(contentType, textPlain)
 	if err != nil {
 		return &http.Response{}, err
 	}
@@ -126,7 +129,7 @@ func (service *WavefrontAPIService) AgentError(details string) {
 func (service *WavefrontAPIService) AgentConfigProcessed() error {
 	log.Println("AgentConfigProcessed")
 
-	apiURL := service.ServerURL + CONFIG_PROCESSED_SUFFIX
+	apiURL := service.ServerURL + configProcessedSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
 	req, err := http.NewRequest("POST", apiURL, nil)

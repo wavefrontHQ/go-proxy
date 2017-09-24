@@ -10,9 +10,9 @@ import (
 	"github.com/wavefronthq/go-proxy/api"
 )
 
+// Interface that forwards points to a Wavefront instance.
 type PointForwarder interface {
 	init()
-	flushPoints()
 	addPoint(point string)
 	incrementBlockedPoint()
 	stop()
@@ -119,7 +119,7 @@ func (f *DefaultPointForwarder) post(points []string) {
 	pointLines := strings.Join(points, "\n")
 	resp, err := f.api.PostData(f.workUnitId, f.dataFormat, pointLines)
 
-	if err != nil || (resp.StatusCode == api.NOT_ACCEPTABLE_STATUS_CODE) {
+	if err != nil || (resp.StatusCode == api.NotAcceptableStatusCode) {
 		if err != nil {
 			log.Printf("%s: error posting data: %v\n", f.name, err)
 		}
