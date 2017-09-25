@@ -1,6 +1,7 @@
 package points
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"math/rand"
@@ -90,9 +91,20 @@ func (h *DefaultPointHandler) stop() {
 
 func pointToString(point *common.Point) string {
 	//<metricName> <metricValue> <timestamp> source=<source> [pointTags]
-	pointLine := fmt.Sprintf("%s %s %d source=%s", strconv.Quote(point.Name), point.Value, point.Timestamp, strconv.Quote(point.Source))
+	var buf bytes.Buffer
+	buf.WriteString(strconv.Quote(point.Name))
+	buf.WriteString(" ")
+	buf.WriteString(point.Value)
+	buf.WriteString(" ")
+	buf.WriteString(strconv.FormatInt(point.Timestamp, 10))
+	buf.WriteString(" source=")
+	buf.WriteString(strconv.Quote(point.Source))
+
 	for k, v := range point.Tags {
-		pointLine = fmt.Sprintf(pointLine+" %s=%s", strconv.Quote(k), strconv.Quote(v))
+		buf.WriteString(" ")
+		buf.WriteString(strconv.Quote(k))
+		buf.WriteString("=")
+		buf.WriteString(strconv.Quote(v))
 	}
-	return pointLine
+	return buf.String()
 }

@@ -138,6 +138,9 @@ func (service *WavefrontAPIService) AgentConfigProcessed() error {
 	}
 
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
-	return err
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return nil
 }
