@@ -41,7 +41,7 @@ func (f *DefaultPointForwarder) init() {
 	f.pointsBlocked = metrics.GetOrRegisterCounter("points."+f.prefix+".blocked", nil)
 	f.pointsQueued = metrics.GetOrRegisterCounter("points."+f.prefix+".queued", nil)
 	f.pointsSent = metrics.GetOrRegisterCounter("points."+f.prefix+".sent", nil)
-	f.pointsFlushTime = metrics.GetOrRegisterTimer("flush."+f.prefix+".duration", nil)
+	f.pointsFlushTime = metrics.GetOrRegisterTimer("push."+f.prefix+".duration", nil)
 	go f.flushPoints()
 }
 
