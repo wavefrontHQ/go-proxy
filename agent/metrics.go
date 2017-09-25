@@ -36,14 +36,14 @@ func buildAgentMetrics() ([]byte, error) {
 
 func addHisto(stats map[string]interface{}, name string, min, max int64, mean float64, percentiles []float64) {
 	// convert from nanoseconds to milliseconds
-	stats[combine(name, "duration.min")] = float64(min) / 1000000
-	stats[combine(name, "duration.max")] = float64(max) / 1000000
-	stats[combine(name, "duration.mean")] = mean / 1000000
-	stats[combine(name, "duration.median")] = percentiles[0] / 1000000
-	stats[combine(name, "duration.p75")] = percentiles[1] / 1000000
-	stats[combine(name, "duration.p95")] = percentiles[2] / 1000000
-	stats[combine(name, "duration.p99")] = percentiles[3] / 1000000
-	stats[combine(name, "duration.p999")] = percentiles[4] / 1000000
+	stats[combine(name, "duration.min")] = float64(min) / 1e6
+	stats[combine(name, "duration.max")] = float64(max) / 1e6
+	stats[combine(name, "duration.mean")] = mean / 1e6
+	stats[combine(name, "duration.median")] = percentiles[0] / 1e6
+	stats[combine(name, "duration.p75")] = percentiles[1] / 1e6
+	stats[combine(name, "duration.p95")] = percentiles[2] / 1e6
+	stats[combine(name, "duration.p99")] = percentiles[3] / 1e6
+	stats[combine(name, "duration.p999")] = percentiles[4] / 1e6
 }
 
 func addRate(stats map[string]interface{}, name string, count int64, m1, mean float64) {

@@ -77,6 +77,8 @@ func (f *DefaultPointForwarder) getPointsBatch() []string {
 
 func (f *DefaultPointForwarder) buffer(points []string) {
 	f.mtx.Lock()
+	defer f.mtx.Unlock()
+
 	currentSize := len(f.points)
 	pointsSize := len(points)
 	f.pointsQueued.Inc(int64(pointsSize))
@@ -95,7 +97,6 @@ func (f *DefaultPointForwarder) buffer(points []string) {
 	if len(points) > 0 {
 		f.points = append(points, f.points...)
 	}
-	f.mtx.Unlock()
 }
 
 func (f *DefaultPointForwarder) addPoint(point string) {
