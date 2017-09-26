@@ -41,12 +41,12 @@ func (ep *NameParser) parse(p *PointParser, pt *common.Point) error {
 }
 
 func (ep *ValueParser) parse(p *PointParser, pt *common.Point) error {
-	var buf bytes.Buffer
 	tok, lit := p.scan()
 	if tok == EOF {
 		return fmt.Errorf("found %q, expected number", lit)
 	}
 
+	var buf bytes.Buffer
 	if tok == MINUS_SIGN {
 		buf.WriteString(lit)
 		tok, lit = p.scan()
@@ -67,7 +67,6 @@ func (ep *ValueParser) parse(p *PointParser, pt *common.Point) error {
 }
 
 func (ep *TimestampParser) parse(p *PointParser, pt *common.Point) error {
-	var buf bytes.Buffer
 	tok, lit := p.scan()
 	if tok == EOF {
 		return fmt.Errorf("found %q, expected number", lit)
@@ -78,6 +77,7 @@ func (ep *TimestampParser) parse(p *PointParser, pt *common.Point) error {
 		return setTimestamp(pt, 0, 1)
 	}
 
+	var buf bytes.Buffer
 	for tok != EOF && tok == NUMBER {
 		buf.WriteString(lit)
 		tok, lit = p.scan()
@@ -96,13 +96,13 @@ func setTimestamp(pt *common.Point, ts int64, numDigits int) error {
 
 	if numDigits == 19 {
 		// nanoseconds
-		ts = ts / 1000000000
+		ts = ts / 1e9
 	} else if numDigits == 16 {
 		// microseconds
-		ts = ts / 1000000
+		ts = ts / 1e6
 	} else if numDigits == 13 {
 		// milliseconds
-		ts = ts / 1000
+		ts = ts / 1e3
 	}
 
 	if ts == 0 {
@@ -179,7 +179,6 @@ func parseQuotedLiteral(p *PointParser) (string, error) {
 }
 
 func parseLiteral(p *PointParser) (string, error) {
-	var buf bytes.Buffer
 	tok, lit := p.scan()
 	if tok == EOF {
 		return "", fmt.Errorf("found %q, expected literal", lit)
@@ -190,6 +189,7 @@ func parseLiteral(p *PointParser) (string, error) {
 	}
 
 	//TODO: handle quotes
+	var buf bytes.Buffer
 	for tok != EOF && tok > literal_beg && tok < literal_end {
 		buf.WriteString(lit)
 		tok, lit = p.scan()

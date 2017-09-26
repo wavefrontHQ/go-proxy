@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	minForwarders    = 2
+	minForwarders    = 4
 	maxForwarders    = 16
 	minFlushInterval = 1000
 )

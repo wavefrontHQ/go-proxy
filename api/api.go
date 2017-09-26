@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	client     = &http.Client{Timeout: time.Second * 10}
+	client     = &http.Client{Timeout: time.Second * 30}
 	pointError = errors.New("Invalid points")
 )
 

@@ -11,8 +11,9 @@ const MAX_BUFFER_SIZE = 2
 
 // Parser represents a parser.
 type PointParser struct {
-	s   *PointScanner
-	buf struct {
+	s       *PointScanner
+	scanBuf bytes.Buffer
+	buf     struct {
 		tok []Token  // last read n tokens
 		lit []string // last read n literals
 		n   int      // unscanned buffer size (max=2)
@@ -82,8 +83,17 @@ func (p *PointParser) unscanTokens(n int) {
 }
 
 func (p *PointParser) reset(b []byte) {
-	buf := bytes.NewBuffer(b)
-	p.s = NewScanner(buf)
+
+	// reset the scan buffer and write new byte
+	p.scanBuf.Reset()
+	p.scanBuf.Write(b)
+
+	if p.s == nil {
+		p.s = NewScanner(&p.scanBuf)
+	} else {
+		// reset p.s.r passing in the buffer as the reader
+		p.s.r.Reset(&p.scanBuf)
+	}
 	p.buf.n = 0
 }
 
