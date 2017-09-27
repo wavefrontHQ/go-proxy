@@ -8,6 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/wavefronthq/go-proxy/agent"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/points"
@@ -21,13 +24,14 @@ var (
 	fServerPtr         = flag.String("server", "", "Wavefront Server URL")
 	fHostnamePtr       = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
 	fWavefrontPortsPtr = flag.String("pushListenerPorts", "3878",
-		"Comma-separated list of ports to listen on for Wavefront formatted data. Defaults to 2878.")
-	fFlushThreadsPtr   = flag.Int("flushThreads", 2, "Number of threads that flush to the server.")
-	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server. Typically 1000.")
-	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush. Typically 40000.")
-	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory. Defaults to 640000.")
+		"Comma-separated list of ports to listen on for Wavefront formatted data.")
+	fFlushThreadsPtr   = flag.Int("flushThreads", 4, "Number of threads that flush to the server.")
+	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server.")
+	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush.")
+	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory.")
 	fIdFilePtr         = flag.String("idFile", ".wavefront_id", "The agentId file.")
 	fLogFilePtr        = flag.String("logFile", "", "Output log file")
+	fPprofAddr         = flag.String("pprof-addr", "", "pprof address to listen on, disabled if empty.")
 )
 
 var (
@@ -128,6 +132,15 @@ func main() {
 	checkFlags()
 
 	log.Printf("Starting Wavefront Proxy Version %s", version)
+
+	if *fPprofAddr != "" {
+		go func() {
+			log.Printf("Starting pprof HTTP server at: %s", *fPprofAddr)
+			if err := http.ListenAndServe(*fPprofAddr, nil); err != nil {
+				log.Fatal(err.Error())
+			}
+		}()
+	}
 
 	agentID := agent.CreateOrGetAgentId(*fIdFilePtr)
 	apiService := &api.WavefrontAPIService{
