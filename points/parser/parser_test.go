@@ -47,7 +47,6 @@ func TestValidPoints(t *testing.T) {
 
 	//TODO: add more test cases and flesh out the parser until all tests pass
 	for _, pointLine := range validPoints {
-		fmt.Println(pointLine)
 		pt, err := parsePoint(pointLine)
 		if err != nil {
 			fmt.Println("Error", pointLine, err)
@@ -59,7 +58,6 @@ func TestValidPoints(t *testing.T) {
 				t.Error(err)
 			}
 		}
-		//fmt.Println("Valid Point", pt)
 	}
 }
 
@@ -92,6 +90,20 @@ func TestInvalidPoints(t *testing.T) {
 			}
 
 		}
+	}
+}
+
+func BenchmarkGraphiteParseBase(b *testing.B) {
+	pt := "\"foo.metric\" 1.5 source=foo-linux \"env\"=\"dev\""
+	for i := 0; i < b.N; i++ {
+		graphiteParser.Parse([]byte(pt))
+	}
+}
+
+func BenchmarkGraphiteParseComplex(b *testing.B) {
+	pt := "\"mac.disk.total\" 4.9895440384E11 1504118031 source=\"Vikrams-MacBook-Pro.local\" \"path\"=\"/\" \"os\"=\"Mac\" \"device\"=\"disk1\" \"fstype\"=\"hfs\""
+	for i := 0; i < b.N; i++ {
+		graphiteParser.Parse([]byte(pt))
 	}
 }
 
