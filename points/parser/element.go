@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"strconv"
@@ -46,23 +45,23 @@ func (ep *ValueParser) parse(p *PointParser, pt *common.Point) error {
 		return fmt.Errorf("found %q, expected number", lit)
 	}
 
-	var buf bytes.Buffer
+	p.writeBuf.Reset()
 	if tok == MINUS_SIGN {
-		buf.WriteString(lit)
+		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
 
 	for tok != EOF && (tok == LETTER || tok == NUMBER || tok == DOT) {
-		buf.WriteString(lit)
+		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
 	p.unscan()
 
-	_, err := strconv.ParseFloat(buf.String(), 64)
+	pt.Value = p.writeBuf.String()
+	_, err := strconv.ParseFloat(pt.Value, 64)
 	if err != nil {
-		return fmt.Errorf("invalid metric value %s", buf.String())
+		return fmt.Errorf("invalid metric value %s", pt.Value)
 	}
-	pt.Value = buf.String()
 	return nil
 }
 
@@ -77,14 +76,14 @@ func (ep *TimestampParser) parse(p *PointParser, pt *common.Point) error {
 		return setTimestamp(pt, 0, 1)
 	}
 
-	var buf bytes.Buffer
+	p.writeBuf.Reset()
 	for tok != EOF && tok == NUMBER {
-		buf.WriteString(lit)
+		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
 	p.unscan()
 
-	tsStr := buf.String()
+	tsStr := p.writeBuf.String()
 	ts, err := strconv.ParseInt(tsStr, 10, 64)
 	if err != nil {
 		return err
@@ -163,19 +162,19 @@ func (ep *WhiteSpaceParser) parse(p *PointParser, pt *common.Point) error {
 }
 
 func parseQuotedLiteral(p *PointParser) (string, error) {
-	var buf bytes.Buffer
+	p.writeBuf.Reset()
 
 	//TODO: handle escaped quote scenario
 	tok, lit := p.scan()
 	for tok != EOF && tok != QUOTES {
 		// let everything through
-		buf.WriteString(lit)
+		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
 	if tok == EOF {
 		return "", fmt.Errorf("found %q, expected quotes", lit)
 	}
-	return buf.String(), nil
+	return p.writeBuf.String(), nil
 }
 
 func parseLiteral(p *PointParser) (string, error) {
@@ -189,13 +188,13 @@ func parseLiteral(p *PointParser) (string, error) {
 	}
 
 	//TODO: handle quotes
-	var buf bytes.Buffer
+	p.writeBuf.Reset()
 	for tok != EOF && tok > literal_beg && tok < literal_end {
-		buf.WriteString(lit)
+		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
 	p.unscan()
-	return buf.String(), nil
+	return p.writeBuf.String(), nil
 }
 
 func getCurrentTime() int64 {

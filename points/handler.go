@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/wavefronthq/go-proxy/api"
@@ -30,6 +31,7 @@ type PointHandler interface {
 type DefaultPointHandler struct {
 	name            string
 	pointForwarders []PointForwarder
+	bufPool         sync.Pool
 }
 
 func (h *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, maxFlushSize int,
@@ -43,6 +45,12 @@ func (h *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, 
 	if flushInterval < minFlushInterval {
 		log.Printf("%s-handler: flushInterval=%d\n", h.name, flushInterval)
 		flushInterval = minFlushInterval
+	}
+
+	h.bufPool = sync.Pool{
+		New: func() interface{} {
+			return new(bytes.Buffer)
+		},
 	}
 
 	h.pointForwarders = make([]PointForwarder, numForwarders)
@@ -69,7 +77,7 @@ func (h *DefaultPointHandler) getForwarder() PointForwarder {
 
 func (h *DefaultPointHandler) reportPoint(point *common.Point) {
 	forwarder := h.getForwarder()
-	forwarder.addPoint(pointToString(point))
+	forwarder.addPoint(h.pointToString(point))
 }
 
 func (h *DefaultPointHandler) reportPoints(points []*common.Point) {
@@ -89,9 +97,11 @@ func (h *DefaultPointHandler) stop() {
 	}
 }
 
-func pointToString(point *common.Point) string {
+func (h *DefaultPointHandler) pointToString(point *common.Point) string {
 	//<metricName> <metricValue> <timestamp> source=<source> [pointTags]
-	var buf bytes.Buffer
+	buf := h.bufPool.Get().(*bytes.Buffer)
+	defer h.bufPool.Put(buf)
+	buf.Reset()
 	buf.WriteString(strconv.Quote(point.Name))
 	buf.WriteString(" ")
 	buf.WriteString(point.Value)

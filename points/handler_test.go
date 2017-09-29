@@ -2,6 +2,7 @@ package points
 
 import (
 	"fmt"
+	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/common"
 	"testing"
 	"time"
@@ -9,15 +10,19 @@ import (
 
 func BenchmarkPointToStringBase(b *testing.B) {
 	p := getPoint(1)
+	h := &DefaultPointHandler{}
+	h.init(2, 1000, 0, 0, "", "", &api.WavefrontAPIService{})
 	for i := 0; i < b.N; i++ {
-		pointToString(p)
+		h.pointToString(p)
 	}
 }
 
 func BenchmarkPointToStringComplex(b *testing.B) {
 	p := getPoint(10)
+	h := &DefaultPointHandler{}
+	h.init(2, 1000, 0, 0, "", "", &api.WavefrontAPIService{})
 	for i := 0; i < b.N; i++ {
-		pointToString(p)
+		h.pointToString(p)
 	}
 }
 

@@ -11,13 +11,14 @@ const MAX_BUFFER_SIZE = 2
 
 // Parser represents a parser.
 type PointParser struct {
-	s       *PointScanner
-	scanBuf bytes.Buffer
-	buf     struct {
+	s   *PointScanner
+	buf struct {
 		tok []Token  // last read n tokens
 		lit []string // last read n literals
 		n   int      // unscanned buffer size (max=2)
 	}
+	scanBuf  bytes.Buffer // buffer reused for scanning tokens
+	writeBuf bytes.Buffer // buffer reused for parsing elements
 	Elements []ElementParser
 }
 
