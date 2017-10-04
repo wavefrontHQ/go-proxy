@@ -15,6 +15,10 @@ type PointForwarder interface {
 	init()
 	addPoint(point string)
 	incrementBlockedPoint()
+	receivedPoints() int64
+	blockedPoints() int64
+	sentPoints() int64
+	queuedPoints() int64
 	stop()
 }
 
@@ -109,6 +113,22 @@ func (f *DefaultPointForwarder) addPoint(point string) {
 
 func (f *DefaultPointForwarder) incrementBlockedPoint() {
 	f.pointsBlocked.Inc(1)
+}
+
+func (f *DefaultPointForwarder) receivedPoints() int64 {
+	return f.pointsReceived.Count()
+}
+
+func (f *DefaultPointForwarder) blockedPoints() int64 {
+	return f.pointsBlocked.Count()
+}
+
+func (f *DefaultPointForwarder) sentPoints() int64 {
+	return f.pointsSent.Count()
+}
+
+func (f *DefaultPointForwarder) queuedPoints() int64 {
+	return f.pointsQueued.Count()
 }
 
 func (f *DefaultPointForwarder) post(points []string) {

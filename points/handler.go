@@ -68,6 +68,8 @@ func (h *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, 
 		h.pointForwarders[i] = pointForwarder
 		pointForwarder.init()
 	}
+
+	go h.printSummary()
 }
 
 func (h *DefaultPointHandler) getForwarder() PointForwarder {
@@ -94,6 +96,15 @@ func (h *DefaultPointHandler) handleBlockedPoint(pointLine string) {
 func (h *DefaultPointHandler) stop() {
 	for _, forwarder := range h.pointForwarders {
 		forwarder.stop()
+	}
+}
+
+func (h *DefaultPointHandler) printSummary() {
+	ticker := time.NewTicker(time.Minute * time.Duration(1))
+	for range ticker.C {
+		f := h.getForwarder()
+		log.Printf("[%s] (SUMMARY): points received: %d; sent: %d; blocked: %d; queued: %d", h.name,
+			f.receivedPoints(), f.sentPoints(), f.blockedPoints(), f.queuedPoints())
 	}
 }
 
