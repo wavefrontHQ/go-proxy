@@ -123,8 +123,8 @@ func startListeners(service api.WavefrontAPI) {
 	}
 }
 
-func initAgent(agentID string, service api.WavefrontAPI) {
-	agent := &agent.DefaultAgent{AgentID: agentID, ApiService: service}
+func initAgent(agentID, serverURL string, service api.WavefrontAPI) {
+	agent := &agent.DefaultAgent{AgentID: agentID, ApiService: service, ServerURL: serverURL}
 	agent.InitAgent()
 }
 
@@ -151,7 +151,7 @@ func main() {
 		Version:   version,
 	}
 
-	initAgent(agentID, apiService)
+	initAgent(agentID, *fServerPtr, apiService)
 	startListeners(apiService)
 	waitForShutdown()
 }

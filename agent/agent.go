@@ -18,6 +18,7 @@ type DefaultAgent struct {
 	LocalAgent bool
 	PushAgent  bool
 	Ephemeral  bool
+	ServerURL  string
 }
 
 func (a *DefaultAgent) InitAgent() {
@@ -28,12 +29,13 @@ func (a *DefaultAgent) InitAgent() {
 
 func (a *DefaultAgent) checkin(ticker *time.Ticker) {
 	for range ticker.C {
-		log.Println("Fetching configuration")
 		a.doCheckin()
 	}
 }
 
 func (a *DefaultAgent) doCheckin() {
+	log.Println("Fetching configuration from", a.ServerURL)
+
 	agentMetrics, err := buildAgentMetrics()
 	if err != nil {
 		log.Println("buildAgentMetrics error", err)

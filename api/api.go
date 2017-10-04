@@ -36,8 +36,6 @@ type WavefrontAPIService struct {
 }
 
 func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPerMinute, currentQueueSize int64) (*config.AgentConfig, error) {
-	log.Println("GetConfig")
-
 	apiURL := service.ServerURL + getConfigSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
@@ -68,8 +66,6 @@ func (service *WavefrontAPIService) GetConfig(currentMillis, bytesLeft, bytesPer
 }
 
 func (service *WavefrontAPIService) Checkin(currentMillis int64, localAgent, pushAgent, ephemeral bool, agentMetrics []byte) (*config.AgentConfig, error) {
-	log.Println("Checkin")
-
 	apiURL := service.ServerURL + checkinSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
@@ -127,8 +123,6 @@ func (service *WavefrontAPIService) AgentError(details string) {
 }
 
 func (service *WavefrontAPIService) AgentConfigProcessed() error {
-	log.Println("AgentConfigProcessed")
-
 	apiURL := service.ServerURL + configProcessedSuffix
 	apiURL = fmt.Sprintf(apiURL, service.AgentID)
 
