@@ -2,8 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"github.com/wavefronthq/go-proxy/common"
 	"testing"
+
+	"github.com/wavefronthq/go-proxy/common"
 )
 
 var graphiteParser = NewGraphiteParser()

@@ -25,6 +25,8 @@ var (
 	fHostnamePtr       = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
 	fWavefrontPortsPtr = flag.String("pushListenerPorts", "3878",
 		"Comma-separated list of ports to listen on for Wavefront formatted data.")
+	fOpenTSDBPortsPtr = flag.String("opentsdbPorts", "4242",
+		"Comma-separated list of ports to listen on for OpenTSDB formatted data.")
 	fFlushThreadsPtr   = flag.Int("flushThreads", 4, "Number of threads that flush to the server.")
 	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server.")
 	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush.")
@@ -105,21 +107,31 @@ func checkFlags() {
 	setupLogger()
 }
 
-func startListener(listener points.PointListener, service api.WavefrontAPI) {
+func startPointListener(listener points.PointListener, service api.WavefrontAPI) {
 	listener.Start(*fFlushThreadsPtr, *fFlushIntervalPtr, *fMaxBufferSizePtr, *fFlushMaxPointsPtr,
 		api.FormatGraphiteV2, api.GraphiteBlockWorkUnit, service)
 }
 
-func startListeners(service api.WavefrontAPI) {
-	ports := strings.Split(*fWavefrontPortsPtr, ",")
+func startPointListeners(service api.WavefrontAPI, portsList string, builder decoder.DecoderBuilder) {
+	ports := strings.Split(portsList, ",")
 	for _, portStr := range ports {
 		port, err := strconv.Atoi(portStr)
 		if err != nil {
 			log.Fatal("Invalid port " + portStr)
 		}
-		listener := &points.DefaultPointListener{Port: port, Builder: decoder.GraphiteBuilder{}}
+		listener := &points.DefaultPointListener{Port: port, Builder: builder}
 		listeners = append(listeners, listener)
-		startListener(listener, service)
+		startPointListener(listener, service)
+	}
+}
+
+func startListeners(service api.WavefrontAPI) {
+	if *fWavefrontPortsPtr != "" {
+		startPointListeners(service, *fWavefrontPortsPtr, decoder.GraphiteBuilder{})
+	}
+
+	if *fOpenTSDBPortsPtr != "" {
+		startPointListeners(service, *fOpenTSDBPortsPtr, decoder.OpenTSDBBuilder{})
 	}
 }
 
