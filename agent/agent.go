@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/rcrowley/go-metrics"
 	"github.com/wavefronthq/go-proxy/api"
 )
 
@@ -22,6 +23,10 @@ type DefaultAgent struct {
 }
 
 func (a *DefaultAgent) InitAgent() {
+	// register agent GC and memory usage statistics
+	// buildAgentMetrics() updates these stats every minute
+	metrics.RegisterRuntimeMemStats(metrics.DefaultRegistry)
+
 	// fetch configuration once per minute
 	checkinTicker := time.NewTicker(time.Minute * time.Duration(1))
 	go a.checkin(checkinTicker)

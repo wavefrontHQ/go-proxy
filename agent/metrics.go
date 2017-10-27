@@ -8,6 +8,9 @@ import (
 )
 
 func buildAgentMetrics() ([]byte, error) {
+	// update GC and memory stats before populating the map
+	metrics.CaptureRuntimeMemStatsOnce(metrics.DefaultRegistry)
+
 	var stats map[string]interface{} = make(map[string]interface{})
 	metrics.DefaultRegistry.Each(func(name string, i interface{}) {
 		switch metric := i.(type) {
