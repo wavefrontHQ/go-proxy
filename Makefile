@@ -21,6 +21,9 @@ deps:
 proxy:
 	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./proxy/proxy.go
 
+amd64:
+	env GOOS=linux GOARCH=amd64 go build -o $(PROXY)-amd64 -ldflags "$(LDFLAGS)" -v ./proxy/proxy.go
+
 go-install:
 	go install ./proxy
 
