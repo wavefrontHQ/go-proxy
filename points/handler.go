@@ -80,6 +80,7 @@ func (h *DefaultPointHandler) getForwarder() PointForwarder {
 func (h *DefaultPointHandler) reportPoint(point *common.Point) {
 	forwarder := h.getForwarder()
 	forwarder.addPoint(h.pointToString(point))
+	forwarder.checkOverflow()
 }
 
 func (h *DefaultPointHandler) reportPoints(points []*common.Point) {

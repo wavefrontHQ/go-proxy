@@ -14,6 +14,7 @@ import (
 type PointForwarder interface {
 	init()
 	addPoint(point string)
+	checkOverflow()
 	incrementBlockedPoint()
 	receivedPoints() int64
 	blockedPoints() int64
@@ -81,34 +82,48 @@ func (f *DefaultPointForwarder) getPointsBatch() []string {
 
 func (f *DefaultPointForwarder) buffer(points []string) {
 	f.mtx.Lock()
-	defer f.mtx.Unlock()
-
-	currentSize := len(f.points)
-	pointsSize := len(points)
-	f.pointsQueued.Inc(int64(pointsSize))
-
-	// do not add more points than the buffer is configured for
-	trimSize := currentSize + pointsSize - f.maxBufferSize
-	if trimSize > 0 {
-		retainSize := pointsSize - trimSize
-		if retainSize <= 0 {
-			points = nil
-		} else {
-			points = points[:retainSize]
-		}
-	}
-
 	if len(points) > 0 {
 		f.points = append(points, f.points...)
 	}
+	f.mtx.Unlock()
+	f.checkOverflow()
 }
 
 func (f *DefaultPointForwarder) addPoint(point string) {
 	f.pointsReceived.Inc(1)
-	//TODO: do not append if length greater than max buffer size?
 	f.mtx.Lock()
 	f.points = append(f.points, point)
 	f.mtx.Unlock()
+}
+
+func (f *DefaultPointForwarder) checkOverflow() {
+	ptsLength := len(f.points)
+	if ptsLength > f.maxBufferSize {
+		log.Printf("Too many pending points: %d. Draining to queue.", ptsLength)
+		f.drainToQueue()
+	}
+}
+
+func (f *DefaultPointForwarder) drainToQueue() {
+	f.mtx.Lock()
+	ptsLength := len(f.points)
+	overflow := ptsLength - f.maxBufferSize
+	if overflow > 0 {
+		// provide headroom for arriving points
+		trimIdx := min(overflow+f.maxFlushSize, ptsLength)
+		pointsToQueue := f.points[:trimIdx]
+
+		if trimIdx == ptsLength {
+			f.points = nil
+		} else {
+			f.points = f.points[trimIdx:]
+		}
+		f.mtx.Unlock()
+		f.pointsQueued.Inc(int64(len(pointsToQueue)))
+		bufferQueue.queuePoints(pointsToQueue)
+	} else {
+		f.mtx.Unlock()
+	}
 }
 
 func (f *DefaultPointForwarder) incrementBlockedPoint() {
