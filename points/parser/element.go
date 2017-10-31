@@ -111,10 +111,13 @@ func setTimestamp(pt *common.Point, ts int64, numDigits int) error {
 	} else if numDigits == 13 {
 		// milliseconds
 		ts = ts / 1e3
-	}
-
-	if ts == 0 {
-		ts = getCurrentTime()
+	} else if numDigits != 10 {
+		// must be in seconds, return error if not 0
+		if ts == 0 {
+			ts = getCurrentTime()
+		} else {
+			return ErrInvalidTimestamp
+		}
 	}
 	pt.Timestamp = ts
 	return nil
