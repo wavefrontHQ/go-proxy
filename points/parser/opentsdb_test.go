@@ -36,7 +36,7 @@ var invalidTSDBPoints = [...]string{
 	"system.cpu.loadavg source=test.wavefront.com",
 	"put foo.metric 1 source=foo-linux",
 	"put foo.metric 1.5 1505454047 host=foo-linux",
-	"put foo.metric 1 1505454047 host=foo-linux", //TODO: fix this case
+	"put foo.metric 1 1505454047 host=foo-linux",
 }
 
 func TestValidOpenTSDBPoints(t *testing.T) {
