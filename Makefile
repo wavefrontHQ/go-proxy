@@ -19,13 +19,13 @@ deps:
 	go get github.com/rcrowley/go-metrics
 
 proxy:
-	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./proxy/proxy.go
+	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./cmd/wavefront-proxy/proxy.go
 
 amd64:
-	env GOOS=linux GOARCH=amd64 go build -o $(PROXY)-amd64 -ldflags "$(LDFLAGS)" -v ./proxy/proxy.go
+	env GOOS=linux GOARCH=amd64 go build -o $(PROXY)-amd64 -ldflags "$(LDFLAGS)" -v ./cmd/wavefront-proxy/proxy.go
 
 go-install:
-	go install ./proxy
+	go install -ldflags "-w -s $(LDFLAGS)" ./cmd/wavefront-proxy
 
 install: proxy
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/
@@ -43,4 +43,4 @@ test-all: lint
 clean:
 	-rm -f wavefront-proxy
 
-.PHONY: deps proxy wavefront-proxy install test lint test-all clean
+.PHONY: deps proxy cmd wavefront-proxy install test lint test-all clean
