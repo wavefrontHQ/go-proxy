@@ -11,6 +11,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
+	"fmt"
 	"github.com/wavefronthq/go-proxy/agent"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/points"
@@ -23,21 +24,25 @@ var (
 	fTokenPtr          = flag.String("token", "", "Wavefront API token")
 	fServerPtr         = flag.String("server", "", "Wavefront Server URL")
 	fHostnamePtr       = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
-	fWavefrontPortsPtr = flag.String("pushListenerPorts", "3878",
-		"Comma-separated list of ports to listen on for Wavefront formatted data.")
+	fWavefrontPortsPtr = flag.String("pushListenerPorts", "2878",
+		"Comma-separated list of ports to listen on for Wavefront formatted data")
 	fOpenTSDBPortsPtr = flag.String("opentsdbPorts", "4242",
-		"Comma-separated list of ports to listen on for OpenTSDB formatted data.")
-	fFlushThreadsPtr   = flag.Int("flushThreads", 4, "Number of threads that flush to the server.")
-	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server.")
-	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush.")
-	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory.")
-	fIdFilePtr         = flag.String("idFile", ".wavefront_id", "The agentId file.")
+		"Comma-separated list of ports to listen on for OpenTSDB formatted data")
+	fFlushThreadsPtr   = flag.Int("flushThreads", 4, "Number of threads that flush to the server")
+	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server")
+	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush")
+	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory")
+	fIdFilePtr         = flag.String("idFile", ".wavefront_id", "The agentId file")
 	fLogFilePtr        = flag.String("logFile", "", "Output log file")
-	fPprofAddr         = flag.String("pprof-addr", "", "pprof address to listen on, disabled if empty.")
+	fPprofAddr         = flag.String("pprof-addr", "", "pprof address to listen on, disabled if empty")
+	fVersion           = flag.Bool("version", false, "Display the version and exit")
 )
 
 var (
 	version   string
+	commit    string
+	branch    string
+	tag       string
 	listeners []points.PointListener
 )
 
@@ -94,8 +99,22 @@ func setupLogger() {
 	}
 }
 
+func getVersion() string {
+	if tag == "" {
+		return version
+	}
+	return tag
+}
+
 func checkFlags() {
 	flag.Parse()
+
+	// check for flags which do something and exit immediately
+	switch {
+	case *fVersion:
+		fmt.Printf("wavefront-proxy v%s (git: %s %s)\n", getVersion(), branch, commit)
+		os.Exit(0)
+	}
 
 	if *fCfgPtr != "" {
 		parseFile(*fCfgPtr)

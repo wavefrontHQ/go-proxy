@@ -1,5 +1,8 @@
 PREFIX := /usr/local
-VERSION := 0.1
+VERSION := 0.2
+TAG := $(shell git describe --exact-match --tags 2>/dev/null)
+COMMIT := $(shell git rev-parse --short HEAD)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
 ifdef GOBIN
 PATH := $(GOBIN):$(PATH)
@@ -8,7 +11,11 @@ PATH := $(subst :,/bin:,$(GOPATH))/bin:$(PATH)
 endif
 
 PROXY := wavefront-proxy
-LDFLAGS := $(LDFLAGS) -X main.version=$(VERSION)
+LDFLAGS := $(LDFLAGS) -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.branch=$(BRANCH)
+
+ifdef TAG
+        LDFLAGS += -X main.tag=$(TAG)
+endif
 
 all:
 	$(MAKE) deps
