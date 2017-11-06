@@ -28,8 +28,15 @@ deps:
 proxy:
 	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./cmd/wavefront-proxy/proxy.go
 
-amd64:
-	env GOOS=linux GOARCH=amd64 go build -o $(PROXY)-amd64 -ldflags "$(LDFLAGS)" -v ./cmd/wavefront-proxy/proxy.go
+# Build linux executables/packages
+package:
+	$(MAKE) deps
+	./pkg/build.sh $(VERSION)
+
+# Build executables for all platforms
+package-all:
+	$(MAKE) deps
+	./pkg/build.sh $(VERSION) -all
 
 go-install:
 	go install -ldflags "-w -s $(LDFLAGS)" ./cmd/wavefront-proxy
@@ -49,5 +56,6 @@ test-all: lint
 
 clean:
 	-rm -f wavefront-proxy
+	-rm -rf ./build
 
 .PHONY: deps proxy cmd wavefront-proxy install test lint test-all clean

@@ -18,6 +18,8 @@
 # IDE specific files
 .idea/*
 
+# Build/Runtime files
+build/*
 .wavefront_id
-wavefront-proxy
+/wavefront-proxy
 wavefront-proxy-amd64

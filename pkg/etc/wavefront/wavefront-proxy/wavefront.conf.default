@@ -1,0 +1,9 @@
+#
+# Wavefront proxy configuration file
+#
+#   Typically in /etc/wavefront/wavefront-proxy/wavefront.conf
+#
+#   For help with your configuration, email support@wavefront.com
+#
+
+#TODO: Placeholder for when the go-proxy supports config files

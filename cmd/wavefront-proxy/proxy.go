@@ -20,7 +20,7 @@ import (
 
 // flags
 var (
-	fCfgPtr            = flag.String("file", "", "Proxy configuration file")
+	fCfgPtr            = flag.String("config", "", "Proxy configuration file")
 	fTokenPtr          = flag.String("token", "", "Wavefront API token")
 	fServerPtr         = flag.String("server", "", "Wavefront Server URL")
 	fHostnamePtr       = flag.String("host", "", "Hostname for the agent. Defaults to machine hostname")
@@ -47,6 +47,7 @@ var (
 )
 
 func parseFile(filename string) {
+	log.Println("Loading configuration file")
 	//TODO: make config file driven
 }
 
@@ -118,7 +119,6 @@ func checkFlags() {
 
 	if *fCfgPtr != "" {
 		parseFile(*fCfgPtr)
-		return
 	}
 	checkRequiredFlag(*fTokenPtr, "Missing token")
 	checkRequiredFlag(*fServerPtr, "Missing server")
