@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/wavefronthq/go-proxy/agent"
 	"github.com/wavefronthq/go-proxy/api"
+	"github.com/wavefronthq/go-proxy/config"
 	"github.com/wavefronthq/go-proxy/points"
 	"github.com/wavefronthq/go-proxy/points/decoder"
 )
@@ -28,14 +29,14 @@ var (
 		"Comma-separated list of ports to listen on for Wavefront formatted data")
 	fOpenTSDBPortsPtr = flag.String("opentsdbPorts", "4242",
 		"Comma-separated list of ports to listen on for OpenTSDB formatted data")
-	fFlushThreadsPtr   = flag.Int("flushThreads", 4, "Number of threads that flush to the server")
-	fFlushIntervalPtr  = flag.Int("pushFlushInterval", 1000, "Milliseconds between flushes to the Wavefront server")
-	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", 40000, "Max points per flush")
-	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", 640000, "Max points to retain in memory")
+	fFlushThreadsPtr   = flag.Int("flushThreads", config.DefaultFlushThreads, "Number of threads that flush to the server")
+	fFlushIntervalPtr  = flag.Int("pushFlushInterval", config.DefaultFlushInterval, "Milliseconds between flushes to the Wavefront server")
+	fFlushMaxPointsPtr = flag.Int("pushFlushMaxPoints", config.DefaultFlushMaxPoints, "Max points per flush")
+	fMaxBufferSizePtr  = flag.Int("pushMemoryBufferLimit", config.DefaultMemoryBufferLimit, "Max points to retain in memory")
 	fIdFilePtr         = flag.String("idFile", ".wavefront_id", "The agentId file")
 	fLogFilePtr        = flag.String("logFile", "", "Output log file")
 	fPprofAddr         = flag.String("pprof-addr", "", "pprof address to listen on, disabled if empty")
-	fVersion           = flag.Bool("version", false, "Display the version and exit")
+	fVersionPtr        = flag.Bool("version", false, "Display the version and exit")
 )
 
 var (
@@ -46,9 +47,24 @@ var (
 	listeners []points.PointListener
 )
 
-func parseFile(filename string) {
-	log.Println("Loading configuration file")
-	//TODO: make config file driven
+func parseCfg(filename string) {
+	proxyConfig, err := config.LoadConfig(filename)
+	if err != nil {
+		log.Fatal("Error loading config file: ", err)
+	}
+
+	fTokenPtr = &proxyConfig.Token
+	fServerPtr = &proxyConfig.Server
+	fHostnamePtr = &proxyConfig.Hostname
+	fWavefrontPortsPtr = &proxyConfig.PushListenerPorts
+	fOpenTSDBPortsPtr = &proxyConfig.OpenTSDBPorts
+	fFlushThreadsPtr = &proxyConfig.FlushThreads
+	fFlushIntervalPtr = &proxyConfig.PushFlushInterval
+	fFlushMaxPointsPtr = &proxyConfig.PushFlushMaxPoints
+	fMaxBufferSizePtr = &proxyConfig.PushMemoryBufferLimit
+	fIdFilePtr = &proxyConfig.IdFile
+	fLogFilePtr = &proxyConfig.LogFile
+	fPprofAddr = &proxyConfig.PprofAddr
 }
 
 func waitForShutdown() {
@@ -112,13 +128,13 @@ func checkFlags() {
 
 	// check for flags which do something and exit immediately
 	switch {
-	case *fVersion:
+	case *fVersionPtr:
 		fmt.Printf("wavefront-proxy v%s (git: %s %s)\n", getVersion(), branch, commit)
 		os.Exit(0)
 	}
 
 	if *fCfgPtr != "" {
-		parseFile(*fCfgPtr)
+		parseCfg(*fCfgPtr)
 	}
 	checkRequiredFlag(*fTokenPtr, "Missing token")
 	checkRequiredFlag(*fServerPtr, "Missing server")

@@ -27,6 +27,14 @@ func (l *DefaultPointListener) Start(numForwarders, flushInterval, bufferSize, m
 
 	log.Printf("Starting listener on port: %d\n", l.Port)
 
+	if numForwarders <= 0 || numForwarders > maxForwarders {
+		numForwarders = minForwarders
+	}
+
+	if flushInterval < minFlushInterval {
+		flushInterval = minFlushInterval
+	}
+
 	l.handler = &DefaultPointHandler{name: fmt.Sprintf("%d", l.Port)}
 	l.handler.init(numForwarders, flushInterval, bufferSize, maxFlushSize, format, workUnitId, service)
 

@@ -37,16 +37,6 @@ type DefaultPointHandler struct {
 func (h *DefaultPointHandler) init(numForwarders, flushInterval, maxBufferSize, maxFlushSize int,
 	dataFormat, workUnitId string, service api.WavefrontAPI) {
 
-	if numForwarders <= 0 || numForwarders > maxForwarders {
-		log.Printf("%s-handler: numForwarders=%d\n", h.name, numForwarders)
-		numForwarders = minForwarders
-	}
-
-	if flushInterval < minFlushInterval {
-		log.Printf("%s-handler: flushInterval=%d\n", h.name, flushInterval)
-		flushInterval = minFlushInterval
-	}
-
 	h.bufPool = sync.Pool{
 		New: func() interface{} {
 			return new(bytes.Buffer)

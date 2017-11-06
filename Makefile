@@ -24,6 +24,7 @@ all:
 deps:
 	go get github.com/satori/go.uuid
 	go get github.com/rcrowley/go-metrics
+	go get github.com/spf13/viper
 
 proxy:
 	go build -i -o $(PROXY) -ldflags "$(LDFLAGS)" ./cmd/wavefront-proxy/proxy.go
