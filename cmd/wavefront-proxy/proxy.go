@@ -11,7 +11,6 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"fmt"
 	"github.com/wavefronthq/go-proxy/agent"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/config"
@@ -129,7 +128,7 @@ func checkFlags() {
 	// check for flags which do something and exit immediately
 	switch {
 	case *fVersionPtr:
-		fmt.Printf("wavefront-proxy v%s (git: %s %s)\n", getVersion(), branch, commit)
+		log.Printf("wavefront-proxy v%s (git: %s %s)\n", getVersion(), branch, commit)
 		os.Exit(0)
 	}
 

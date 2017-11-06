@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	DefaultFlushThreads = 4
-	DefaultFlushInterval = 1000
-	DefaultFlushMaxPoints = 40000
+	DefaultFlushThreads      = 4
+	DefaultFlushInterval     = 1000
+	DefaultFlushMaxPoints    = 40000
 	DefaultMemoryBufferLimit = 640000
 )
 

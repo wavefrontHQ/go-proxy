@@ -109,6 +109,6 @@ done
 # Move files from staging into appropriate build directories
 
 # clean up staging dir
-#rm -rf $STAGING_DIR
+rm -rf $STAGING_DIR
 
 echo "Done."

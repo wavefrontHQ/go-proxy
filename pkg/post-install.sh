@@ -47,6 +47,11 @@ if [[ ! -f /etc/default/wavefront-proxy ]]; then
     touch /etc/default/wavefront-proxy
 fi
 
+if [[ ! -f ${WKG_DIR}/wavefront.conf ]] ; then
+    cp ${WKG_DIR}/wavefront.conf.default ${WKG_DIR}/wavefront.conf
+    chown ${USER}:${GROUP} ${WKG_DIR}/wavefront.conf
+fi
+
 # Distribution-specific logic
 if [[ -f /etc/redhat-release ]] || [[ -f /etc/SuSE-release ]]; then
     # RHEL-variant logic
