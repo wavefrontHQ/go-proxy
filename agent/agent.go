@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/rcrowley/go-metrics"
 	"github.com/wavefronthq/go-proxy/api"
 )
 
@@ -18,9 +19,14 @@ type DefaultAgent struct {
 	LocalAgent bool
 	PushAgent  bool
 	Ephemeral  bool
+	ServerURL  string
 }
 
 func (a *DefaultAgent) InitAgent() {
+	// register agent GC and memory usage statistics
+	// buildAgentMetrics() updates these stats every minute
+	metrics.RegisterRuntimeMemStats(metrics.DefaultRegistry)
+
 	// fetch configuration once per minute
 	checkinTicker := time.NewTicker(time.Minute * time.Duration(1))
 	go a.checkin(checkinTicker)
@@ -28,12 +34,13 @@ func (a *DefaultAgent) InitAgent() {
 
 func (a *DefaultAgent) checkin(ticker *time.Ticker) {
 	for range ticker.C {
-		log.Println("Fetching configuration")
 		a.doCheckin()
 	}
 }
 
 func (a *DefaultAgent) doCheckin() {
+	log.Println("Fetching configuration from", a.ServerURL)
+
 	agentMetrics, err := buildAgentMetrics()
 	if err != nil {
 		log.Println("buildAgentMetrics error", err)

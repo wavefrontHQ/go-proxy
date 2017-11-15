@@ -1,0 +1,20 @@
+[Unit]
+Description=Proxy for sending data to Wavefront
+Documentation=https://github.com/wavefronthq/go-proxy
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/default/wavefront
+User=wavefront
+Group=wavefront
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=30
+
+WorkingDirectory=/etc/wavefront/wavefront-proxy
+ExecStart=/usr/bin/wavefront-proxy -config /etc/wavefront/wavefront-proxy/wavefront.conf -logFile /var/log/wavefront/wavefront.log
+
+[Install]
+WantedBy=multi-user.target

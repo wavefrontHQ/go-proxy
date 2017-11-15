@@ -27,14 +27,29 @@ func NewGraphiteElements() []ElementParser {
 	var elements []ElementParser
 	wsParser := WhiteSpaceParser{}
 	repeatParser := LoopedParser{wrappedParser: &TagParser{}, wsPaser: &wsParser}
-	elements = append(elements, &NameParser{}, &wsParser, &ValueParser{}, &wsParser, &TimestampParser{},
-		&wsParser, &repeatParser)
+	elements = append(elements, &NameParser{}, &wsParser, &ValueParser{}, &wsParser,
+		&TimestampParser{optional: true}, &wsParser, &repeatParser)
+	return elements
+}
+
+// Returns a slice of ElementParser's for the OpenTSDB format
+func NewOpenTSDBElements() []ElementParser {
+	var elements []ElementParser
+	wsParser := WhiteSpaceParser{}
+	repeatParser := LoopedParser{wrappedParser: &TagParser{}, wsPaser: &wsParser}
+	elements = append(elements, &LiteralParser{literal: "put"}, &wsParser, &NameParser{}, &wsParser,
+		&TimestampParser{}, &wsParser, &ValueParser{}, &wsParser, &repeatParser)
 	return elements
 }
 
 // Returns new instance of Graphite format specific parser
 func NewGraphiteParser() *PointParser {
 	elements := NewGraphiteElements()
+	return &PointParser{Elements: elements}
+}
+
+func NewOpenTSDBParser() *PointParser {
+	elements := NewOpenTSDBElements()
 	return &PointParser{Elements: elements}
 }
 
