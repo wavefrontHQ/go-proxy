@@ -39,6 +39,9 @@ package-all:
 	$(MAKE) deps
 	./pkg/build.sh $(VERSION) -all
 
+docker-build:
+	./pkg/docker-build.sh $(VERSION)
+
 go-install:
 	go install -ldflags "-w -s $(LDFLAGS)" ./cmd/wavefront-proxy
 

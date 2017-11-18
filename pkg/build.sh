@@ -95,6 +95,7 @@ do
         --license "Apache 2.0" \
         --maintainer "Wavefront <support@wavefront.com>" \
         --name wavefront-proxy \
+        --version $VERSION \
         --package $OUT_DIR/linux/amd64 \
         -s dir \
         -t ${pkg} \
