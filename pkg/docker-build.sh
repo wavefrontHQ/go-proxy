@@ -7,7 +7,6 @@ if [[ $? -ne 0 ]] ; then
 fi
 
 CURR_DIR=$(pwd)
-#VERSION=$1-`date +%s`
 VERSION=$1
 
 rm -rf ${CURR_DIR}/build
@@ -25,3 +24,5 @@ docker cp ${CONTAINER_ID}:/go/src/github.com/wavefronthq/go-proxy/build/linux  $
 echo "Cleaning up build container..."
 docker stop ${CONTAINER_ID}
 docker container rm ${CONTAINER_ID}
+
+echo "Done. Packages available under: ${CURR_DIR}/build"
