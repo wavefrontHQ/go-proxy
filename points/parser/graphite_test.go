@@ -23,6 +23,9 @@ var validPoints = [...]string{
 	"foo.metric 1.5 host=foo-linux",
 	"foo.metric 1.5 1505454047 host=foo-linux",
 
+	// verify extra space is allowed
+	"foo.metric 1.5    1505454047    host=foo-linux",
+
 	// tags
 	"foo.metric 1.5 source=foo-linux env=dev",
 	"foo.metric 1.5 source=foo-linux env=dev region=us-west2",
