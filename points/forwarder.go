@@ -99,7 +99,6 @@ func (f *DefaultPointForwarder) addPoint(point string) {
 func (f *DefaultPointForwarder) checkOverflow() {
 	ptsLength := len(f.points)
 	if ptsLength > f.maxBufferSize {
-		log.Printf("Too many pending points: %d. Draining to queue.", ptsLength)
 		f.drainToQueue()
 	}
 }
