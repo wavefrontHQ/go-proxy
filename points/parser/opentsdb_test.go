@@ -19,6 +19,9 @@ var validTSDBPoints = [...]string{
 	// host
 	"put foo.metric 1505454047 1.5 host=foo-linux",
 
+	// verify extra space is allowed
+	"put foo.metric    1505454047 1.5 host=foo-linux",
+
 	// tags
 	"put mac.disk.total 1504118031 4.9895440384E11 source=Vikrams-MacBook-Pro.local path=/ os=Mac device=disk1 fstype=hfs",
 

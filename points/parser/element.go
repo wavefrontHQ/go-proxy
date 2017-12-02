@@ -163,13 +163,15 @@ func (ep *TagParser) parse(p *PointParser, pt *common.Point) error {
 }
 
 func (ep *WhiteSpaceParser) parse(p *PointParser, pt *common.Point) error {
-	tok, lit := p.scan()
-	if tok != WS {
-		if tok == EOF {
-			return ErrEOF
-		}
-		return fmt.Errorf("found %q, expected whitespace", lit)
+	tok := WS
+	for tok != EOF && tok == WS {
+		tok, _ = p.scan()
 	}
+
+	if tok == EOF {
+		return ErrEOF
+	}
+	p.unscan()
 	return nil
 }
 

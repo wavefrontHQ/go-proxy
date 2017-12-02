@@ -11,6 +11,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
+	"github.com/rcrowley/go-metrics"
 	"github.com/wavefronthq/go-proxy/agent"
 	"github.com/wavefronthq/go-proxy/api"
 	"github.com/wavefronthq/go-proxy/config"
@@ -174,10 +175,29 @@ func initAgent(agentID, serverURL string, service api.WavefrontAPI) {
 	agent.InitAgent()
 }
 
+func buildVersion(v string) int64 {
+	version := 0
+	s := strings.Split(v, ".")
+	for i := 0; i < len(s); i++ {
+		version *= 1e3
+		intVersion, _ := strconv.Atoi(s[i])
+		version += intVersion
+	}
+	if len(s) == 2 {
+		version *= 1e3
+	} else {
+		version *= 1e6
+	}
+	return int64(version)
+}
+
 func main() {
 	checkFlags()
 
 	log.Printf("Starting Wavefront Proxy Version %s", version)
+
+	versionMetric := metrics.GetOrRegisterGauge("build.version", nil)
+	versionMetric.Update(buildVersion(version))
 
 	if *fPprofAddr != "" {
 		go func() {
