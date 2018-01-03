@@ -19,7 +19,11 @@ func CreateOrGetAgentId(idFile string) string {
 }
 
 func getUUID() string {
-	return satori.NewV4().String()
+	uuid, err := satori.NewV4()
+	if err != nil {
+		panic(err)
+	}
+	return uuid.String()
 }
 
 func writeAgentId(agentId, idFile string) {
