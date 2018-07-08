@@ -56,6 +56,8 @@ func (s *PointScanner) Scan() (Token, string) {
 		return UNDERSCORE, string(ch)
 	case '/':
 		return SLASH, string(ch)
+	case '\\':
+		return BACKSLASH, string(ch)
 	case ',':
 		return COMMA, string(ch)
 	case '"':

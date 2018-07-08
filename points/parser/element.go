@@ -190,10 +190,11 @@ func (ep *LiteralParser) parse(p *PointParser, pt *common.Point) error {
 func parseQuotedLiteral(p *PointParser) (string, error) {
 	p.writeBuf.Reset()
 
-	//TODO: handle escaped quote scenario
+	escaped := false
 	tok, lit := p.scan()
-	for tok != EOF && tok != QUOTES {
+	for tok != EOF && (tok != QUOTES || (tok == QUOTES && escaped)) {
 		// let everything through
+		escaped = tok == BACKSLASH
 		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
@@ -213,11 +214,13 @@ func parseLiteral(p *PointParser) (string, error) {
 		return parseQuotedLiteral(p)
 	}
 
-	//TODO: handle quotes
 	p.writeBuf.Reset()
 	for tok != EOF && tok > literal_beg && tok < literal_end {
 		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
+	}
+	if tok == QUOTES {
+		return "", errors.New("found quote inside unquoted literal")
 	}
 	p.unscan()
 	return p.writeBuf.String(), nil

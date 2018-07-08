@@ -34,6 +34,9 @@ var validPoints = [...]string{
 	// quotes
 	"\"mac.disk.total\" 4.9895440384E11 1504118031 source=\"Vikrams-MacBook-Pro.local\" \"path\"=\"/\" \"os\"=\"Mac\" \"device\"=\"disk1\" \"fstype\"=\"hfs\"",
 	"mac.cpu.usage.steal 0.000000 1505844752 cpu=\"cpu2\" os=\"Mac\" source=\"Vikrams-MacBook-Pro.local\"",
+
+	// escaped quotes
+	"foo.metric 1.5 source=foo-linux env=\"de\\\"v\"",
 }
 
 var invalidPoints = [...]string{
@@ -43,6 +46,7 @@ var invalidPoints = [...]string{
 	"foo.metric 1",
 	"foo.metric 1.5.0 source=foo-linux",
 	"system.cpu.loadavg source=test.wavefront.com",
+	"te\"st.metric 1 1505454047 source=test",
 }
 
 func TestValidPoints(t *testing.T) {
