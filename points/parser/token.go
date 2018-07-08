@@ -16,11 +16,12 @@ const (
 	UNDERSCORE
 	DOT
 	SLASH
+	BACKSLASH
 	COMMA
-	QUOTES
 	literal_end
 
 	// Misc characters
+	QUOTES
 	EQUALS
 	NEWLINE
 )
