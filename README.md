@@ -1,4 +1,4 @@
-# go-proxy
+# go-proxy [![travis build status](https://travis-ci.com/wavefrontHQ/go-proxy.svg?branch=master)](https://travis-ci.com/wavefrontHQ/go-proxy)
 Go Proxy for Wavefront
 
 ## To start developing
