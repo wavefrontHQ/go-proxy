@@ -19,6 +19,14 @@ var validPoints = [...]string{
 	"foo.metric 1 source=foo-linux",
 	"foo.metric 1 1505454047 source=foo-linux",
 
+	// exponential values
+	"foo.metric 1e05 source=foo-linux",
+	"foo.metric 1e05 1505454047 source=foo-linux",
+	"foo.metric 1e-05 source=foo-linux",
+	"foo.metric 1e-05 source=foo-linux",
+	"foo.metric 1e5 1505454047 source=foo-linux",
+	"foo.metric 1e-5 1505454047 source=foo-linux",
+
 	// host
 	"foo.metric 1.5 host=foo-linux",
 	"foo.metric 1.5 1505454047 host=foo-linux",
@@ -47,6 +55,7 @@ var invalidPoints = [...]string{
 	"foo.metric 1.5.0 source=foo-linux",
 	"system.cpu.loadavg source=test.wavefront.com",
 	"te\"st.metric 1 1505454047 source=test",
+	"foo.metric 1e05e source=foo-linux",
 }
 
 func TestValidPoints(t *testing.T) {
