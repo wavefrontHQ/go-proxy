@@ -57,7 +57,8 @@ func (ep *ValueParser) parse(p *PointParser, pt *common.Point) error {
 		tok, lit = p.scan()
 	}
 
-	for tok != EOF && (tok == LETTER || tok == NUMBER || tok == DOT) {
+	for tok != EOF && (tok == LETTER || tok == NUMBER || tok == DOT ||
+		tok == MINUS_SIGN) {
 		p.writeBuf.WriteString(lit)
 		tok, lit = p.scan()
 	}
