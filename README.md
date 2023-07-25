@@ -1,4 +1,9 @@
-# go-proxy [![travis build status](https://travis-ci.com/wavefrontHQ/go-proxy.svg?branch=master)](https://travis-ci.com/wavefrontHQ/go-proxy)
+> **Warning**
+>
+> VMware has ended active development of this project. This repository will no longer be updated.
+
+# go-proxy
+
 Go Proxy for Wavefront
 
 ## To start developing
